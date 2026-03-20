@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Hairly - Trouvez votre salon</title>
+
+<style>
+
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+
+body{
+margin:0;
+font-family:'Roboto', sans-serif;
+background:url('RETA.png') center/cover no-repeat;
+min-height:100vh;
+color:black;
+}
+
+/* NAVBAR */
+
+.navbar{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:15px 25px;
+background:rgba(255,255,255,0.95);
+box-shadow:0 2px 10px rgba(0,0,0,0.1);
+z-index:1000;
+flex-wrap:wrap;
+box-sizing:border-box;
+}
+
+.logo{
+font-size:28px;
+font-weight:700;
+color:#0078d4;
+}
+
+.menu{
+display:flex;
+gap:15px;
+justify-content:center;
+flex:1;
+}
+
+.menu a{
+text-decoration:none;
+padding:8px 15px;
+border-radius:25px;
+background:#f2f2f2;
+font-size:14px;
+font-weight:500;
+color:#333;
+transition:0.2s;
+}
+
+.menu a:hover{
+background:#0078d4;
+color:white;
+}
+
+.login{
+padding:8px 16px;
+border-radius:25px;
+background:#0078d4;
+color:white;
+font-size:14px;
+cursor:pointer;
+}
+
+.login:hover{
+background:#005a9e;
+}
+
+/* LOGIN BOX */
+
+#loginBox{
+position:absolute;
+top:70px;
+right:20px;
+background:white;
+padding:15px;
+border-radius:10px;
+box-shadow:0 5px 15px rgba(0,0,0,0.2);
+display:none;
+width:220px;
+z-index:2000;
+}
+
+#loginBox input{
+width:100%;
+padding:10px;
+margin-bottom:10px;
+border:1px solid #ccc;
+border-radius:6px;
+box-sizing:border-box;
+}
+
+#loginBox button{
+width:100%;
+padding:10px;
+border:none;
+border-radius:6px;
+background:#0078d4;
+color:white;
+cursor:pointer;
+}
+
+#errorLogin{
+color:red;
+font-size:13px;
+text-align:center;
+}
+
+/* HERO */
+
+.hero{
+height:100vh;
+display:flex;
+flex-direction:column;
+justify-content:center;
+align-items:center;
+text-align:center;
+padding:20px;
+box-sizing:border-box;
+}
+
+.hero h1{
+font-size:44px;
+margin-bottom:10px;
+}
+
+.hero p{
+font-size:18px;
+margin-bottom:35px;
+color:#333;
+}
+
+/* SEARCH */
+
+.search-container{
+width:100%;
+max-width:520px;
+display:flex;
+flex-direction:column;
+align-items:center;
+position:relative;
+}
+
+input{
+width:100%;
+padding:16px;
+font-size:16px;
+border-radius:30px;
+border:1px solid #ccc;
+margin-bottom:12px;
+box-sizing:border-box;
+}
+
+button{
+width:100%;
+padding:14px;
+font-size:16px;
+border-radius:30px;
+border:none;
+background:#0078d4;
+color:white;
+cursor:pointer;
+transition:0.2s;
+}
+
+button:hover{
+background:#005a9e;
+}
+
+/* suggestions */
+
+.suggestions{
+width:100%;
+background:white;
+border-radius:10px;
+overflow:hidden;
+display:none;
+position:absolute;
+top:55px;
+box-shadow:0 3px 10px rgba(0,0,0,0.15);
+z-index:100;
+}
+
+.suggestion{
+padding:12px;
+cursor:pointer;
+}
+
+.suggestion:hover{
+background:#f0f0f0;
+}
+
+/* MOBILE */
+
+@media (max-width:768px){
+
+.logo{
+font-size:24px;
+}
+
+.menu{
+width:100%;
+order:3;
+justify-content:center;
+margin-top:10px;
+}
+
+.menu a{
+font-size:14px;
+padding:8px 14px;
+}
+
+.login{
+order:2;
+}
+
+.hero{
+padding-top:140px;
+}
+
+.hero h1{
+font-size:28px;
+}
+
+.hero p{
+font-size:16px;
+}
+
+.search-container{
+max-width:none;
+}
+
+input{
+font-size:18px;
+padding:18px;
+}
+
+button{
+font-size:18px;
+padding:18px;
+}
+
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+
+<div class="navbar">
+
+<div class="logo">Hairly</div>
+
+<div class="menu">
+<a href="salons.html">Nos salons</a>
+<a href="contact.html">Contact</a>
+</div>
+
+<div class="login" onclick="toggleLogin()">Connexion</div>
+
+</div>
+
+<!-- LOGIN BOX -->
+
+<div id="loginBox">
+
+<input id="loginEmail" placeholder="Email">
+
+<input id="loginPassword" type="password" placeholder="Mot de passe">
+
+<button onclick="login()">Se connecter</button>
+
+<p id="errorLogin"></p>
+
+</div>
+
+<!-- HERO -->
+
+<div class="hero">
+
+<h1>Bienvenue sur Hairly</h1>
+
+<p>Trouvez et réservez votre salon de coiffure en quelques secondes</p>
+
+<div class="search-container">
+
+<input id="search" type="text" placeholder="Recherchez un salon ou une ville...">
+
+<div id="suggestions" class="suggestions">
+<div class="suggestion" onclick="goSalon()">L'homme du jazz</div>
+</div>
+
+<button onclick="searchSalon()">Rechercher</button>
+
+</div>
+
+</div>
+
+<script>
+
+function toggleLogin(){
+const box=document.getElementById("loginBox");
+box.style.display=box.style.display==="block"?"none":"block";
+}
+
+const input=document.getElementById("search");
+const suggestions=document.getElementById("suggestions");
+
+input.addEventListener("input",function(){
+
+const value=input.value.toLowerCase();
+
+if(value.includes("homme") || value.includes("jazz")){
+suggestions.style.display="block";
+}else{
+suggestions.style.display="none";
+}
+
+});
+
+function goSalon(){
+window.location.href="homme-du-jazz.html";
+}
+
+function searchSalon(){
+
+const value=input.value.toLowerCase();
+
+if(value.includes("homme") || value.includes("jazz")){
+window.location.href="homme-du-jazz.html";
+}else{
+alert("Aucun salon trouvé");
+}
+
+}
+
+async function login(){
+
+const email=document.getElementById("loginEmail").value;
+const password=document.getElementById("loginPassword").value;
+
+const res=await fetch("/login",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({email,password})
+});
+
+const data=await res.json();
+
+if(data.success){
+window.location.href="/dashboard/"+data.slug;
+}else{
+document.getElementById("errorLogin").innerText="Email ou mot de passe incorrect";
+}
+
+}
+
+</script>
+
+</body>
+</html>

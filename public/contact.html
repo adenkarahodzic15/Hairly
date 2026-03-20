@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Hairly - Contact</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+
+/* BODY */
+body{
+  margin:0;
+  font-family:'Roboto', sans-serif;
+  background:#f5f5f5;
+  color:#333;
+}
+
+/* NAVBAR */
+.navbar{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:10px 20px;
+  background:white;
+  box-shadow:0 2px 10px rgba(0,0,0,0.1);
+  flex-wrap:wrap;
+  z-index:1000;
+}
+
+.logo{
+  font-size:28px;
+  font-weight:700;
+  color:#0078d4;
+}
+
+.menu{
+  display:flex;
+  gap:15px;
+  flex-wrap:wrap;
+}
+
+.menu a{
+  text-decoration:none;
+  padding:8px 15px;
+  border-radius:25px;
+  background:#f2f2f2;
+  font-size:14px;
+  font-weight:500;
+  color:#333;
+  transition:0.2s;
+}
+
+.menu a:hover{
+  background:#0078d4;
+  color:white;
+}
+
+/* CONTAINER */
+.container{
+  padding-top:120px;
+  width:90%;
+  max-width:900px;
+  margin:auto;
+  text-align:center;
+}
+
+h1{
+  font-size:32px;
+  margin-bottom:10px;
+}
+
+.subtitle{
+  color:#666;
+  margin-bottom:30px;
+  font-size:16px;
+}
+
+/* INFOS CONTACT */
+.contact-info{
+  background:white;
+  padding:20px;
+  border-radius:12px;
+  box-shadow:0 4px 15px rgba(0,0,0,0.1);
+  margin-bottom:30px;
+}
+
+.contact-info p{
+  font-size:16px;
+  margin:8px 0;
+}
+
+/* FORMULAIRE */
+form{
+  background:white;
+  padding:20px;
+  border-radius:12px;
+  box-shadow:0 4px 15px rgba(0,0,0,0.1);
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+
+input, textarea{
+  padding:10px;
+  border-radius:8px;
+  border:1px solid #ccc;
+  font-size:14px;
+  box-sizing:border-box;
+}
+
+textarea{
+  resize:none;
+  height:100px;
+}
+
+button{
+  padding:10px;
+  border:none;
+  border-radius:25px;
+  background:#0078d4;
+  color:white;
+  font-size:14px;
+  cursor:pointer;
+  transition:0.2s;
+}
+
+button:hover{
+  background:#005a9e;
+}
+
+/* SECTION SALON */
+.salon-section{
+  margin-top:30px;
+  background:white;
+  padding:20px;
+  border-radius:12px;
+  box-shadow:0 4px 15px rgba(0,0,0,0.1);
+}
+
+.salon-section h2{
+  color:#0078d4;
+  margin-bottom:10px;
+}
+
+/* RESPONSIVE */
+@media (max-width:768px){
+  .navbar{
+    flex-direction:column;
+    align-items:flex-start;
+  }
+  .logo{
+    font-size:24px;
+    margin-bottom:8px;
+  }
+  .menu{
+    justify-content:flex-start;
+    gap:10px;
+    width:100%;
+    margin-bottom:10px;
+  }
+  h1{
+    font-size:24px;
+  }
+  .subtitle{
+    font-size:14px;
+  }
+  .contact-info, form, .salon-section{
+    padding:15px;
+  }
+  input, textarea{
+    font-size:14px;
+    padding:8px;
+  }
+  button{
+    font-size:14px;
+    padding:8px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="navbar">
+  <div class="logo">Hairly</div>
+  <div class="menu">
+    <a href="salons.html">Nos salons</a>
+    <a href="contact.html">Contact</a>
+  </div>
+</div>
+
+<div class="container">
+
+<h1>Contactez Hairly</h1>
+<p class="subtitle">
+Une question, un problème ou envie d’ajouter votre salon sur Hairly ?<br>
+Notre équipe est là pour vous aider.
+</p>
+
+<div class="contact-info">
+  <p>📧 Email : hairly.contacts@gmail.com</p>
+  <p>📞 Téléphone : 07 64 18 20 70</p>
+</div>
+
+<form>
+  <input type="text" placeholder="Votre nom" required>
+  <input type="email" placeholder="Votre email" required>
+  <textarea placeholder="Votre message..." required></textarea>
+  <button type="submit">Envoyer le message</button>
+</form>
+
+<div class="salon-section">
+  <h2>Vous êtes un salon de coiffure ?</h2>
+  <p>Rejoignez Hairly et permettez à vos clients de réserver leurs rendez-vous en ligne facilement.</p>
+  <p>Contactez-nous par email ou via le formulaire pour ajouter votre salon sur Hairly.</p>
+</div>
+
+</div>
+
+</body>
+</html>

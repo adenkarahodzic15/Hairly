@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Hairly - Nos salons</title>
+
+<style>
+
+/* PAGE */
+
+body{
+margin:0;
+font-family:Arial, sans-serif;
+background:#f5f5f5;
+}
+
+/* NAVBAR */
+
+.navbar{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:70px;
+display:flex;
+align-items:center;
+background:white;
+box-shadow:0 2px 10px rgba(0,0,0,0.1);
+z-index:1000;
+}
+
+.logo{
+position:absolute;
+left:40px;
+font-size:36px;
+font-weight:700;
+color:#0078d4;
+}
+
+.menu{
+margin:0 auto;
+display:flex;
+gap:20px;
+}
+
+.menu a{
+text-decoration:none;
+padding:10px 20px;
+border-radius:25px;
+background:#f2f2f2;
+font-size:15px;
+font-weight:500;
+color:#333;
+transition:0.2s;
+}
+
+.menu a:hover{
+background:#0078d4;
+color:white;
+}
+
+/* CONTENU */
+
+.container{
+padding-top:120px;
+width:90%;
+max-width:1000px;
+margin:auto;
+text-align:center;
+}
+
+h1{
+font-size:36px;
+margin-bottom:50px;
+color:#333;
+}
+
+/* CARTE SALON */
+
+.salons-grid{
+display:flex;
+justify-content:center;
+}
+
+.salon-card{
+width:320px;
+background:white;
+border-radius:12px;
+box-shadow:0 4px 15px rgba(0,0,0,0.1);
+overflow:hidden;
+text-decoration:none;
+color:black;
+transition:0.2s;
+}
+
+.salon-card:hover{
+transform:translateY(-5px);
+box-shadow:0 8px 20px rgba(0,0,0,0.15);
+}
+
+.salon-card img{
+width:100%;
+height:200px;
+object-fit:cover;
+}
+
+.salon-info{
+padding:20px;
+}
+
+.salon-info h2{
+margin:0;
+font-size:22px;
+}
+
+.address{
+margin-top:8px;
+color:#666;
+font-size:14px;
+}
+
+.reviews{
+margin-top:10px;
+font-size:16px;
+color:#f5a623;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="navbar">
+
+<div class="logo">Hairly</div>
+
+<div class="menu">
+<a href="salons.html">Nos salons</a>
+<a href="contact.html">Contact</a>
+</div>
+
+</div>
+
+<div class="container">
+
+<h1>Réservez votre RDV en ligne</h1>
+
+<div class="salons-grid">
+
+<a href="homme-du-jazz.html" class="salon-card">
+
+<img src="salon1.png">
+
+<div class="salon-info">
+
+<h2>L'homme du jazz</h2>
+
+<div class="address">
+12 rue des Augustins, 57000 Metz
+</div>
+
+<div class="reviews">
+⭐⭐⭐⭐⭐
+</div>
+
+</div>
+
+</a>
+
+</div>
+
+</div>
+
+</body>
+</html>

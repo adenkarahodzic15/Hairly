@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Connexion Salon - Hairly</title>
+
+<style>
+body{
+  font-family:Arial;
+  background:#f5f5f5;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+  margin:0;
+}
+
+.box{
+  background:white;
+  padding:40px;
+  border-radius:10px;
+  box-shadow:0 5px 20px rgba(0,0,0,0.1);
+  width:320px;
+  text-align:center;
+}
+
+input{
+  width:100%;
+  padding:12px;
+  margin-bottom:15px;
+  border:1px solid #ccc;
+  border-radius:5px;
+}
+
+button{
+  width:100%;
+  padding:12px;
+  background:#0078d4;
+  color:white;
+  border:none;
+  border-radius:5px;
+  cursor:pointer;
+}
+
+button:hover{
+  background:#005a9e;
+}
+
+#error{
+  color:red;
+  margin-top:10px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="box">
+  <h2>Connexion Salon</h2>
+
+  <input id="email" placeholder="Email">
+  <input id="password" type="password" placeholder="Mot de passe">
+
+  <button onclick="login()">Se connecter</button>
+
+  <p id="error"></p>
+</div>
+
+<script>
+async function login(){
+  // Nettoyage email pour éviter les espaces ou majuscules
+  const email = document.getElementById("email").value.trim().toLowerCase();
+  const password = document.getElementById("password").value;
+
+  const res = await fetch("/login", {
+    method:"POST",
+    headers:{
+      "Content-Type":"application/json"
+    },
+    body: JSON.stringify({ email, password })
+  });
+
+  const data = await res.json();
+
+  if(data.success){
+    // ✅ Utilisation de la redirection envoyée par le serveur
+    window.location.href = data.redirect;
+  } else {
+    document.getElementById("error").innerText = "Email ou mot de passe incorrect";
+  }
+}
+</script>
+
+</body>
+</html>
