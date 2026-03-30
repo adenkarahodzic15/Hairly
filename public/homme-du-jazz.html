@@ -440,6 +440,7 @@ salon:"homme-du-jazz"
 const res=await fetch("/reservation",{
 method:"POST",
 headers:{"Content-Type":"application/json"},
+credentials:"include", // ✅ AJOUT IMPORTANT
 body:JSON.stringify(data)
 });
 
