@@ -8,15 +8,12 @@
 <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet">
 
 <style>
-
 body{
-  font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
+  font-family:system-ui;
   margin:0;
   background:#eef2f7;
   overflow:hidden;
 }
-
-/* HEADER */
 
 .header{
   display:flex;
@@ -40,15 +37,7 @@ body{
   border:none;
   border-radius:8px;
   cursor:pointer;
-  font-weight:500;
-  transition:0.2s;
 }
-
-.logout:hover{
-  background:#005ea6;
-}
-
-/* CONTAINER */
 
 .calendar-container{
   max-width:1300px;
@@ -57,96 +46,12 @@ body{
   height:calc(100vh - 100px);
 }
 
-/* CALENDAR */
-
 #calendar{
   background:white;
   border-radius:12px;
   padding:25px;
-  box-shadow:0 10px 30px rgba(0,0,0,0.08);
   height:100%;
 }
-
-/* EVENTS */
-
-.fc-event{
-  border:none !important;
-  border-radius:6px !important;
-  font-size:13px;
-  font-weight:500;
-  padding:4px;
-}
-
-.fc-toolbar-title{
-  font-size:22px;
-  font-weight:600;
-}
-
-.fc-button{
-  background:#0078d4 !important;
-  border:none !important;
-  border-radius:6px !important;
-}
-
-.fc-button:hover{
-  background:#005ea6 !important;
-}
-
-.fc-col-header-cell{
-  background:#f3f6fa;
-  font-weight:600;
-}
-
-/* MOBILE */
-
-@media (max-width:768px){
-
-body{
-  overflow:auto;
-}
-
-.header{
-  flex-direction:column;
-  gap:10px;
-  padding:15px;
-}
-
-.logo{
-  font-size:22px;
-}
-
-.logout{
-  width:100%;
-  max-width:250px;
-}
-
-.calendar-container{
-  margin:10px auto;
-  padding:10px;
-  height:auto;
-}
-
-#calendar{
-  padding:10px;
-  height:auto;
-}
-
-.fc-toolbar{
-  flex-direction:column;
-  gap:10px;
-}
-
-.fc-toolbar-title{
-  font-size:18px;
-}
-
-.fc-button{
-  font-size:12px !important;
-  padding:6px 8px !important;
-}
-
-}
-
 </style>
 </head>
 
@@ -166,8 +71,11 @@ body{
 <script>
 
 async function logout(){
-  await fetch("/logout")
-  window.location.href="/"
+  // fallback si route inexistante
+  try {
+    await fetch("/logout");
+  } catch(e){}
+  window.location.href="/";
 }
 
 let calendar;
@@ -175,13 +83,18 @@ let calendar;
 async function loadCalendar(){
 
   const res = await fetch("/dashboard-reservations");
+
+  if(!res.ok){
+    console.log("Erreur API reservations");
+    return;
+  }
+
   const reservations = await res.json();
 
   const events = reservations.map(r => ({
-    id: r._id,
+    id: r.id, // ✅ corrigé
     title: `${r.nom} ${r.prenom} - ${r.service} (${r.duree} min)`,
-    start: r.date + "T" + r.heure,
-    duration: r.duree
+    start: r.date + "T" + r.heure
   }));
 
   const isMobile = window.innerWidth < 768;
@@ -191,17 +104,15 @@ async function loadCalendar(){
     calendar = new FullCalendar.Calendar(document.getElementById('calendar'),{
 
       initialView: isMobile ? 'timeGridDay' : 'timeGridWeek',
-
       locale:"fr",
 
       slotMinTime:"08:00:00",
       slotMaxTime:"19:00:00",
 
-      editable:true,
+      editable:false,
       selectable:true,
 
       nowIndicator:true,
-
       height:'100%',
 
       headerToolbar:{
@@ -210,49 +121,7 @@ async function loadCalendar(){
         right: isMobile ? '' : 'timeGridWeek,timeGridDay'
       },
 
-      events: events,
-
-      eventClick: async function(info){
-
-        if(confirm("Supprimer ce rendez-vous ?")){
-
-          await fetch("/dashboard-reservations/"+info.event.id,{
-            method:"DELETE"
-          });
-
-          info.event.remove();
-
-        }
-
-      },
-
-      eventDrop: async function(info){
-
-        const date = info.event.start.toISOString().split("T")[0];
-        const heure = info.event.start.toTimeString().substring(0,5);
-
-        await fetch("/dashboard-reservations/"+info.event.id,{
-          method:"PUT",
-          headers:{"Content-Type":"application/json"},
-          body:JSON.stringify({date,heure})
-        });
-
-      },
-
-      eventResize: async function(info){
-
-        const date = info.event.start.toISOString().split("T")[0];
-        const heure = info.event.start.toTimeString().substring(0,5);
-
-        const duree = Math.round((info.event.end - info.event.start)/(1000*60));
-
-        await fetch("/dashboard-reservations/"+info.event.id,{
-          method:"PUT",
-          headers:{"Content-Type":"application/json"},
-          body:JSON.stringify({date,heure,duree})
-        });
-
-      }
+      events: events
 
     });
 
@@ -264,11 +133,9 @@ async function loadCalendar(){
     events.forEach(e=>calendar.addEvent(e));
 
   }
-
 }
 
 setInterval(loadCalendar,5000);
-
 loadCalendar();
 
 </script>

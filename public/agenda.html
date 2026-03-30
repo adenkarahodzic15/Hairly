@@ -3,48 +3,58 @@
 <head>
 <meta charset="UTF-8">
 <title>Agenda Salon - Hairly</title>
+
 <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+
 <style>
-  body { font-family: Arial; margin: 20px; }
-  h1 { color: #0078d4; text-align:center; }
-  #calendar { max-width: 900px; margin: 0 auto; }
-  .fc-event-title {
-    font-size: 0.85em;
-  }
+body { font-family: Arial; margin: 20px; }
+h1 { color: #0078d4; text-align:center; }
+#calendar { max-width: 900px; margin: 0 auto; }
 </style>
 </head>
 
 <body>
+
 <h1>Agenda Salon</h1>
 <div id="calendar"></div>
 
 <script>
+
 document.addEventListener('DOMContentLoaded', async function() {
+
   try {
-    // Récupère les réservations depuis le serveur
-    const resSession = await fetch("/dashboard-reservations");
-    
-    if (!resSession.ok) throw new Error("Impossible de récupérer les réservations");
 
-    const reservations = await resSession.json();
-    console.log("Reservations reçues :", reservations);
+    const res = await fetch("/dashboard-reservations");
 
-    // Si ce n'est pas un tableau ou vide, redirige vers login
-    if (!Array.isArray(reservations)) {
-      alert("Erreur de connexion, veuillez vous reconnecter");
+    // 🔴 gestion session
+    if (res.status === 401) {
+      alert("Veuillez vous connecter");
       window.location.href = "/login.html";
       return;
     }
 
-    // Transforme les réservations en events FullCalendar
+    if (!res.ok) throw new Error("Erreur API");
+
+    const reservations = await res.json();
+
+    console.log("Reservations :", reservations);
+
+    if (!Array.isArray(reservations)) {
+      throw new Error("Données invalides");
+    }
+
     const events = reservations.map(r => {
-      // Assurer le format ISO : ajouter ":00" si pas de secondes
+
       let heureISO = r.heure.length === 5 ? r.heure + ":00" : r.heure;
+
       let title = `${r.nom} ${r.prenom} - ${r.service}`;
-      if(r.coiffeur) title += ` (Coiffeur: ${r.coiffeur})`;
-      if(r.duree) title += ` [${r.duree} min]`;
+
+      if (r.coiffeur) title += ` (${r.coiffeur})`;
+      if (r.duree) title += ` [${r.duree} min]`;
+
       return {
+        id: r.id, // ✅ important
         title: title,
         start: `${r.date}T${heureISO}`
       };
@@ -52,12 +62,11 @@ document.addEventListener('DOMContentLoaded', async function() {
 
     const calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
       initialView: 'timeGridWeek',
-      allDaySlot: false,
+      locale: 'fr',
+      firstDay: 1,
       slotMinTime: "08:00:00",
       slotMaxTime: "20:00:00",
-      events: events,
-      locale: 'fr',
-      firstDay: 1 // semaine commence lundi
+      events: events
     });
 
     calendar.render();
@@ -66,7 +75,9 @@ document.addEventListener('DOMContentLoaded', async function() {
     console.error(err);
     alert("Erreur lors du chargement de l'agenda");
   }
+
 });
+
 </script>
 
 </body>

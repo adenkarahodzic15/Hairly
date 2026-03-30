@@ -1,4 +1,4 @@
-// ===== server.js corrigé =====
+// ===== server.js corrigé FINAL =====
 
 require('dotenv').config();
 
@@ -12,17 +12,24 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// ===== SUPABASE =====
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
 
+// ===== MIDDLEWARE =====
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static('public'));
 
+// ✅ SESSION CONFIG FIX
 app.use(session({
   secret: process.env.SESSION_SECRET || "hairly_secret",
   resave: false,
   saveUninitialized: false,
-  cookie: { secure: false }
+  cookie: {
+    secure: false,
+    httpOnly: true,
+    sameSite: "lax"
+  }
 }));
 
 // ===== EMAIL =====
@@ -47,15 +54,16 @@ const prestations = {
 
 // ===== LOGIN =====
 app.post("/login", async (req, res) => {
+
   const { email, password } = req.body;
 
-  const { data: salon, error } = await supabase
+  const { data: salon } = await supabase
     .from('salons')
     .select('*')
     .eq('email', email.trim().toLowerCase())
     .single();
 
-  if (error || !salon) return res.json({ success: false });
+  if (!salon) return res.json({ success: false });
 
   const valid =
     (password === salon.password) ||
@@ -70,37 +78,65 @@ app.post("/login", async (req, res) => {
   };
 
   req.session.save(() => {
-    res.json({ success: true, redirect: `/dashboard/${salon.slug}` });
+    res.json({
+      success: true,
+      redirect: `/dashboard/${salon.slug}`
+    });
+  });
+});
+
+// ===== LOGOUT =====
+app.get("/logout", (req, res) => {
+  req.session.destroy(() => {
+    res.redirect("/");
   });
 });
 
 // ===== DASHBOARD =====
 app.get("/dashboard/:slug", (req, res) => {
+
   if (!req.session.salon || req.session.salon.slug !== req.params.slug) {
     return res.redirect("/login.html");
   }
+
   res.sendFile(path.join(__dirname, "public", "agenda.html"));
 });
 
-// ===== RECUP RDV =====
+// ===== RECUPERER RDV =====
 app.get("/dashboard-reservations", async (req, res) => {
 
-  const { data } = await supabase
-    .from('reservation')
-    .select('*');
+  if (!req.session.salon) {
+    return res.status(401).json({ error: "Non connecté" });
+  }
 
-  res.json(data || []);
+  const { data, error } = await supabase
+    .from('reservation')
+    .select('*')
+    .eq('salon', req.session.salon.slug);
+
+  if (error) {
+    console.log(error);
+    return res.json([]);
+  }
+
+  res.json(data);
 });
 
-// ===== PRENDRE RDV =====
+// ===== RESERVATION =====
 app.post("/reservation", async (req, res) => {
 
-  // 🔥 IMPORTANT : on force le salon
+  const { service, nom, prenom, telephone, email, date, heure, coiffeur } = req.body;
+
+  if (!service || !nom || !date || !heure) {
+    return res.json({ success: false, message: "Champs manquants" });
+  }
+
+  // 🔥 salon fixé (tu peux le rendre dynamique plus tard)
   const salon = "homme-du-jazz";
 
-  const { service, nom, prenom, telephone, email, date, heure, coiffeur } = req.body;
   const duree = prestations[service] || 30;
 
+  // Vérification conflits
   const { data: reservationsExist } = await supabase
     .from('reservation')
     .select('*')
@@ -115,9 +151,12 @@ app.post("/reservation", async (req, res) => {
     return (heureDebut < rFin && (heureDebut + duree) > rDebut);
   });
 
-  if (overlap) return res.json({ success: false, message: "Créneau déjà pris" });
+  if (overlap) {
+    return res.json({ success: false, message: "Créneau déjà pris" });
+  }
 
-  await supabase.from('reservation').insert([{
+  // INSERT SUPABASE
+  const { error } = await supabase.from('reservation').insert([{
     salon,
     service,
     duree,
@@ -130,6 +169,23 @@ app.post("/reservation", async (req, res) => {
     coiffeur
   }]);
 
+  if (error) {
+    console.log("INSERT ERROR:", error);
+    return res.json({ success: false });
+  }
+
+  // EMAIL (optionnel)
+  const emailSalon = process.env.HOMME_DU_JAZZ_EMAIL;
+
+  if (emailSalon) {
+    transporter.sendMail({
+      from: "Hairly <edinedo52@gmail.com>",
+      to: emailSalon,
+      subject: "Nouveau rendez-vous",
+      text: `Rendez-vous:\n${nom} ${prenom}\n${date} ${heure}`
+    });
+  }
+
   res.json({ success: true });
 });
 
@@ -138,4 +194,5 @@ app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
-app.listen(PORT, () => console.log("Serveur lancé"));
+// ===== START =====
+app.listen(PORT, () => console.log("Serveur lancé sur le port", PORT));
