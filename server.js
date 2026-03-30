@@ -84,12 +84,10 @@ app.get("/dashboard/:slug", (req, res) => {
 
 // ===== RECUP RDV =====
 app.get("/dashboard-reservations", async (req, res) => {
-  if (!req.session.salon) return res.json([]);
 
   const { data } = await supabase
     .from('reservation')
-    .select('*')
-    .eq('salon', req.session.salon.slug);
+    .select('*');
 
   res.json(data || []);
 });
