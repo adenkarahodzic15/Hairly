@@ -272,29 +272,19 @@ border-bottom:1px solid #ddd;
 
 </div>
 
-<!-- CAROUSEL PHOTOS -->
-
 <div class="carousel">
-
 <button class="prev">&#10094;</button>
-
 <div class="carousel-track-container">
 <div class="carousel-track">
-
 <img src="salon1.png" class="carousel-item">
 <img src="salon2.png" class="carousel-item">
 <img src="salon3.png" class="carousel-item">
 <img src="salon4.png" class="carousel-item">
 <img src="salon5.png" class="carousel-item">
-
 </div>
 </div>
-
 <button class="next">&#10095;</button>
-
 </div>
-
-<!-- PRESTATIONS -->
 
 <div class="service-category">
 
@@ -328,8 +318,6 @@ border-bottom:1px solid #ddd;
 </div>
 
 </div>
-
-<!-- MODAL RESERVATION -->
 
 <div id="reservationModal">
 
@@ -366,28 +354,6 @@ border-bottom:1px solid #ddd;
 <p id="successMessage"></p>
 
 </div>
-</div>
-
-<!-- HORAIRES SALON -->
-
-<div class="container">
-
-<div class="hours">
-
-<h2>Horaires d'ouverture</h2>
-
-<div class="hours-grid">
-<div>Lundi</div><div>10h - 19h</div>
-<div>Mardi</div><div>Fermé</div>
-<div>Mercredi</div><div>9h - 19h</div>
-<div>Jeudi</div><div>9h - 19h</div>
-<div>Vendredi</div><div>9h - 19h</div>
-<div>Samedi</div><div>9h - 19h</div>
-<div>Dimanche</div><div>Fermé</div>
-</div>
-
-</div>
-
 </div>
 
 <script>
@@ -479,8 +445,12 @@ body:JSON.stringify(data)
 
 const result=await res.json();
 
+console.log(result);
+
 if(result.success){
-document.getElementById("successMessage").innerText="Rendez-vous confirmé !";
+document.getElementById("successMessage").innerText="✅ Rendez-vous confirmé !";
+} else {
+document.getElementById("successMessage").innerText="❌ " + (result.message || "Erreur lors de la réservation");
 }
 
 });
