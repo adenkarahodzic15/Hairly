@@ -20,7 +20,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static('public'));
 
-// ✅ SESSION CONFIG FIX
+// ===== SESSION =====
 app.use(session({
   secret: process.env.SESSION_SECRET || "hairly_secret",
   resave: false,
@@ -109,17 +109,19 @@ app.get("/dashboard-reservations", async (req, res) => {
     return res.status(401).json({ error: "Non connecté" });
   }
 
+  console.log("SESSION SLUG:", req.session.salon.slug);
+
   const { data, error } = await supabase
     .from('reservation')
     .select('*')
-    .eq('salon', req.session.salon.slug);
+    .eq('salon', req.session.salon.slug); // 🔥 important
 
   if (error) {
-    console.log(error);
+    console.log("GET ERROR:", error);
     return res.json([]);
   }
 
-  res.json(data);
+  res.json(data || []);
 });
 
 // ===== RESERVATION =====
@@ -131,8 +133,8 @@ app.post("/reservation", async (req, res) => {
     return res.json({ success: false, message: "Champs manquants" });
   }
 
-  // 🔥 salon fixé (tu peux le rendre dynamique plus tard)
-  const salon = "homme-du-jazz";
+  // ✅ ON UTILISE LA MEME VALEUR QUE LE DASHBOARD
+  const salon = req.session?.salon?.slug || "homme-du-jazz";
 
   const duree = prestations[service] || 30;
 
@@ -155,7 +157,7 @@ app.post("/reservation", async (req, res) => {
     return res.json({ success: false, message: "Créneau déjà pris" });
   }
 
-  // INSERT SUPABASE
+  // INSERT
   const { error } = await supabase.from('reservation').insert([{
     salon,
     service,
@@ -174,7 +176,7 @@ app.post("/reservation", async (req, res) => {
     return res.json({ success: false });
   }
 
-  // EMAIL (optionnel)
+  // EMAIL
   const emailSalon = process.env.HOMME_DU_JAZZ_EMAIL;
 
   if (emailSalon) {
