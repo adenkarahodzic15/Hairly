@@ -3,15 +3,18 @@
 <head>
 <meta charset="UTF-8">
 <title>Hairly - Contact</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <style>
+
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
 
 /* BODY */
 body{
   margin:0;
   font-family:'Roboto', sans-serif;
-  background:#f5f5f5;
-  color:#333;
+  background:#0f0f10;
+  color:white;
 }
 
 /* NAVBAR */
@@ -23,39 +26,37 @@ body{
   display:flex;
   justify-content:space-between;
   align-items:center;
-  padding:10px 20px;
-  background:white;
-  box-shadow:0 2px 10px rgba(0,0,0,0.1);
-  flex-wrap:wrap;
+  padding:15px 25px;
+  background:#0f0f10;
+  border-bottom:1px solid #222;
   z-index:1000;
 }
 
 .logo{
-  font-size:28px;
+  font-size:26px;
   font-weight:700;
-  color:#0078d4;
+  color:white;
 }
 
 .menu{
   display:flex;
   gap:15px;
-  flex-wrap:wrap;
 }
 
 .menu a{
   text-decoration:none;
-  padding:8px 15px;
-  border-radius:25px;
-  background:#f2f2f2;
+  padding:8px 16px;
+  border-radius:20px;
+  background:#1a1a1c;
   font-size:14px;
   font-weight:500;
-  color:#333;
+  color:white;
   transition:0.2s;
 }
 
 .menu a:hover{
-  background:#0078d4;
-  color:white;
+  background:white;
+  color:black;
 }
 
 /* CONTAINER */
@@ -73,17 +74,16 @@ h1{
 }
 
 .subtitle{
-  color:#666;
+  color:#aaa;
   margin-bottom:30px;
   font-size:16px;
 }
 
 /* INFOS CONTACT */
 .contact-info{
-  background:white;
+  background:#1a1a1c;
   padding:20px;
   border-radius:12px;
-  box-shadow:0 4px 15px rgba(0,0,0,0.1);
   margin-bottom:30px;
 }
 
@@ -94,91 +94,89 @@ h1{
 
 /* FORMULAIRE */
 form{
-  background:white;
+  background:#1a1a1c;
   padding:20px;
   border-radius:12px;
-  box-shadow:0 4px 15px rgba(0,0,0,0.1);
   display:flex;
   flex-direction:column;
   gap:12px;
 }
 
 input, textarea{
-  padding:10px;
+  padding:12px;
   border-radius:8px;
-  border:1px solid #ccc;
+  border:none;
+  background:#2a2a2c;
+  color:white;
   font-size:14px;
-  box-sizing:border-box;
+  outline:none;
 }
 
 textarea{
   resize:none;
-  height:100px;
+  height:120px;
 }
 
 button{
-  padding:10px;
+  padding:12px;
   border:none;
   border-radius:25px;
-  background:#0078d4;
-  color:white;
+  background:white;
+  color:black;
   font-size:14px;
+  font-weight:500;
   cursor:pointer;
   transition:0.2s;
 }
 
 button:hover{
-  background:#005a9e;
+  opacity:0.8;
 }
 
 /* SECTION SALON */
 .salon-section{
   margin-top:30px;
-  background:white;
+  background:#1a1a1c;
   padding:20px;
   border-radius:12px;
-  box-shadow:0 4px 15px rgba(0,0,0,0.1);
 }
 
 .salon-section h2{
-  color:#0078d4;
   margin-bottom:10px;
+}
+
+.salon-section p{
+  color:#aaa;
 }
 
 /* RESPONSIVE */
 @media (max-width:768px){
-  .navbar{
-    flex-direction:column;
-    align-items:flex-start;
-  }
-  .logo{
-    font-size:24px;
-    margin-bottom:8px;
-  }
-  .menu{
-    justify-content:flex-start;
-    gap:10px;
-    width:100%;
-    margin-bottom:10px;
-  }
-  h1{
-    font-size:24px;
-  }
-  .subtitle{
-    font-size:14px;
-  }
-  .contact-info, form, .salon-section{
-    padding:15px;
-  }
-  input, textarea{
-    font-size:14px;
-    padding:8px;
-  }
-  button{
-    font-size:14px;
-    padding:8px;
-  }
+
+.navbar{
+  flex-direction:column;
+  align-items:flex-start;
+  gap:10px;
 }
+
+.logo{
+  font-size:22px;
+}
+
+.menu{
+  width:100%;
+  flex-wrap:wrap;
+}
+
+h1{
+  font-size:24px;
+}
+
+.subtitle{
+  font-size:14px;
+}
+
+}
+
 </style>
 </head>
 
@@ -195,6 +193,7 @@ button:hover{
 <div class="container">
 
 <h1>Contactez Hairly</h1>
+
 <p class="subtitle">
 Une question, un problème ou envie d’ajouter votre salon sur Hairly ?<br>
 Notre équipe est là pour vous aider.
