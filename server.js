@@ -1,5 +1,3 @@
-// ===== server.js corrigé FINAL =====
-
 require('dotenv').config();
 
 const express = require('express');
@@ -114,7 +112,7 @@ app.get("/dashboard-reservations", async (req, res) => {
   const { data, error } = await supabase
     .from('reservation')
     .select('*')
-    .eq('salon', req.session.salon.slug); // 🔥 important
+    .eq('salon', req.session.salon.slug);
 
   if (error) {
     console.log("GET ERROR:", error);
@@ -133,12 +131,10 @@ app.post("/reservation", async (req, res) => {
     return res.json({ success: false, message: "Champs manquants" });
   }
 
-  // ✅ ON UTILISE LA MEME VALEUR QUE LE DASHBOARD
   const salon = req.session?.salon?.slug || "homme-du-jazz";
 
   const duree = prestations[service] || 30;
 
-  // Vérification conflits
   const { data: reservationsExist } = await supabase
     .from('reservation')
     .select('*')
@@ -157,7 +153,6 @@ app.post("/reservation", async (req, res) => {
     return res.json({ success: false, message: "Créneau déjà pris" });
   }
 
-  // INSERT
   const { error } = await supabase.from('reservation').insert([{
     salon,
     service,
@@ -176,7 +171,6 @@ app.post("/reservation", async (req, res) => {
     return res.json({ success: false });
   }
 
-  // EMAIL
   const emailSalon = process.env.HOMME_DU_JAZZ_EMAIL;
 
   if (emailSalon) {
@@ -186,6 +180,56 @@ app.post("/reservation", async (req, res) => {
       subject: "Nouveau rendez-vous",
       text: `Rendez-vous:\n${nom} ${prenom}\n${date} ${heure}`
     });
+  }
+
+  res.json({ success: true });
+});
+
+
+// =========================
+// ===== AVIS (NOUVEAU) =====
+// =========================
+
+// GET avis d'un salon
+app.get("/avis/:salonId", async (req, res) => {
+
+  const { salonId } = req.params;
+
+  const { data, error } = await supabase
+    .from("avis")
+    .select("*")
+    .eq("salon_id", salonId)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.log("GET AVIS ERROR:", error);
+    return res.status(500).json([]);
+  }
+
+  res.json(data || []);
+});
+
+// POST nouvel avis
+app.post("/avis", async (req, res) => {
+
+  const { salon_id, nom, commentaire, note } = req.body;
+
+  if (!salon_id || !nom || !commentaire || !note) {
+    return res.status(400).json({ success: false, message: "Champs manquants" });
+  }
+
+  const { error } = await supabase
+    .from("avis")
+    .insert([{
+      salon_id,
+      nom,
+      commentaire,
+      note
+    }]);
+
+  if (error) {
+    console.log("INSERT AVIS ERROR:", error);
+    return res.status(500).json({ success: false });
   }
 
   res.json({ success: true });
