@@ -2,16 +2,37 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Hairly - Nos salons</title>
 
 <style>
 
-/* PAGE */
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
 
 body{
 margin:0;
-font-family:Arial, sans-serif;
-background:#f5f5f5;
+font-family:'Roboto', sans-serif;
+color:white;
+
+/* IMAGE MOBILE */
+background:url("bg-mobile.jpg") center/cover no-repeat;
+min-height:100vh;
+}
+
+/* IMAGE DESKTOP */
+@media(min-width:768px){
+body{
+background:url("bg-desktop.jpg") center/cover no-repeat;
+}
+}
+
+/* OVERLAY */
+body::before{
+content:"";
+position:fixed;
+inset:0;
+background:rgba(0,0,0,0.5);
+z-index:-1;
 }
 
 /* NAVBAR */
@@ -21,42 +42,36 @@ position:fixed;
 top:0;
 left:0;
 width:100%;
-height:70px;
 display:flex;
 align-items:center;
-background:white;
-box-shadow:0 2px 10px rgba(0,0,0,0.1);
+justify-content:space-between;
+padding:20px 25px;
 z-index:1000;
 }
 
 .logo{
-position:absolute;
-left:40px;
-font-size:36px;
+font-size:28px;
 font-weight:700;
-color:#0078d4;
+color:white;
 }
 
 .menu{
-margin:0 auto;
+position:absolute;
+left:50%;
+transform:translateX(-50%);
 display:flex;
-gap:20px;
+gap:25px;
 }
 
 .menu a{
 text-decoration:none;
-padding:10px 20px;
-border-radius:25px;
-background:#f2f2f2;
-font-size:15px;
+color:white;
 font-weight:500;
-color:#333;
-transition:0.2s;
+opacity:0.9;
 }
 
 .menu a:hover{
-background:#0078d4;
-color:white;
+opacity:1;
 }
 
 /* CONTENU */
@@ -64,39 +79,58 @@ color:white;
 .container{
 padding-top:120px;
 width:90%;
-max-width:1000px;
+max-width:1100px;
 margin:auto;
 text-align:center;
 }
 
 h1{
-font-size:36px;
+font-size:40px;
 margin-bottom:50px;
-color:#333;
+font-weight:700;
 }
 
-/* CARTE SALON */
+/* GRID */
 
 .salons-grid{
-display:flex;
-justify-content:center;
+display:grid;
+grid-template-columns:1fr;
+gap:25px;
 }
 
+/* PC GRID */
+
+@media(min-width:768px){
+.salons-grid{
+grid-template-columns:repeat(2,1fr);
+}
+}
+
+@media(min-width:1024px){
+.salons-grid{
+grid-template-columns:repeat(3,1fr);
+}
+}
+
+/* CARD */
+
 .salon-card{
-width:320px;
-background:white;
-border-radius:12px;
-box-shadow:0 4px 15px rgba(0,0,0,0.1);
+background:rgba(255,255,255,0.08);
+backdrop-filter:blur(12px);
+border-radius:20px;
 overflow:hidden;
 text-decoration:none;
-color:black;
-transition:0.2s;
+color:white;
+transition:0.3s;
+box-shadow:0 10px 30px rgba(0,0,0,0.3);
 }
 
 .salon-card:hover{
-transform:translateY(-5px);
-box-shadow:0 8px 20px rgba(0,0,0,0.15);
+transform:translateY(-8px) scale(1.02);
+box-shadow:0 20px 40px rgba(0,0,0,0.4);
 }
+
+/* IMAGE */
 
 .salon-card img{
 width:100%;
@@ -104,8 +138,11 @@ height:200px;
 object-fit:cover;
 }
 
+/* INFO */
+
 .salon-info{
 padding:20px;
+text-align:left;
 }
 
 .salon-info h2{
@@ -115,14 +152,24 @@ font-size:22px;
 
 .address{
 margin-top:8px;
-color:#666;
+opacity:0.8;
 font-size:14px;
 }
 
 .reviews{
 margin-top:10px;
 font-size:16px;
-color:#f5a623;
+}
+
+/* BOUTON */
+
+.book-btn{
+margin-top:15px;
+display:inline-block;
+padding:10px 18px;
+background:black;
+border-radius:20px;
+font-size:14px;
 }
 
 </style>
@@ -144,7 +191,7 @@ color:#f5a623;
 
 <div class="container">
 
-<h1>Réservez votre RDV en ligne</h1>
+<h1>Réservez votre salon</h1>
 
 <div class="salons-grid">
 
@@ -157,11 +204,15 @@ color:#f5a623;
 <h2>L'homme du jazz</h2>
 
 <div class="address">
-12 rue des Augustins, 57000 Metz
+12 rue des Augustins, Metz
 </div>
 
 <div class="reviews">
 ⭐⭐⭐⭐⭐
+</div>
+
+<div class="book-btn">
+Réserver
 </div>
 
 </div>

@@ -12,17 +12,21 @@
 body{
 margin:0;
 font-family:'Roboto',sans-serif;
-background:white;
-color:black;
+background:#0f0f10;
+color:white;
 }
 
+/* NAVBAR */
+
 .top-bar{
-background:#0078d4;
-color:white;
+background:transparent;
 padding:20px 30px;
-font-size:28px;
-font-weight:bold;
+font-size:24px;
+font-weight:700;
+color:white;
 }
+
+/* CONTAINER */
 
 .container{
 width:90%;
@@ -30,11 +34,13 @@ max-width:1000px;
 margin:20px auto;
 }
 
+/* HEADER */
+
 .salon-header{
 display:flex;
 justify-content:space-between;
 align-items:flex-start;
-margin-bottom:20px;
+margin-bottom:30px;
 flex-wrap:wrap;
 }
 
@@ -43,34 +49,43 @@ margin:0;
 font-size:32px;
 }
 
-.address,.reviews{
-margin:5px 0;
+.address{
+color:#aaa;
+margin-top:5px;
 }
 
 .reviews{
+margin-top:8px;
 cursor:pointer;
-font-weight:500;
+color:#ccc;
 }
 
 .reviews-list{
 display:none;
 margin-top:10px;
-background:#f3f6fa;
+background:#1a1a1c;
 padding:15px;
 border-radius:10px;
 }
 
+/* BUTTON */
+
 .appointment-btn{
 padding:12px 25px;
 border:none;
-border-radius:12px;
-background:#0078d4;
-color:white;
+border-radius:25px;
+background:white;
+color:black;
 cursor:pointer;
-margin-top:10px;
+font-weight:500;
+transition:0.2s;
 }
 
-/* carousel */
+.appointment-btn:hover{
+opacity:0.8;
+}
+
+/* CAROUSEL */
 
 .carousel{
 position:relative;
@@ -79,13 +94,10 @@ max-width:900px;
 margin:30px auto;
 }
 
-.carousel-track-container{
-overflow:hidden;
-}
-
 .carousel-track{
 display:flex;
 gap:15px;
+overflow-x:auto;
 }
 
 .carousel-item{
@@ -95,54 +107,36 @@ object-fit:cover;
 border-radius:12px;
 }
 
-.carousel button{
-position:absolute;
-top:50%;
-transform:translateY(-50%);
-background:rgba(0,0,0,0.5);
-color:white;
-border:none;
-font-size:30px;
-padding:10px;
-cursor:pointer;
-border-radius:50%;
-}
-
-.prev{left:-15px;}
-.next{right:-15px;}
-
-/* prestations */
+/* SERVICES */
 
 .service-category{
-margin-top:30px;
+margin-top:40px;
 }
 
 .service-category h2{
-color:#0078d4;
+margin-bottom:15px;
 }
 
 .service-item{
 display:flex;
 justify-content:space-between;
 align-items:center;
-padding:12px;
-margin-bottom:8px;
-background:white;
-border-radius:10px;
-flex-wrap:wrap;
+padding:15px;
+margin-bottom:10px;
+background:#1a1a1c;
+border-radius:12px;
 }
 
 .service-item button{
-padding:8px 18px;
+padding:8px 16px;
 border:none;
-border-radius:10px;
-background:#0078d4;
-color:white;
+border-radius:20px;
+background:white;
+color:black;
 cursor:pointer;
-margin-top:5px;
 }
 
-/* horaires réservation */
+/* SLOTS */
 
 .time-slots{
 display:flex;
@@ -153,23 +147,17 @@ margin-top:10px;
 
 .time-slot{
 padding:10px 15px;
-background:#f3f6fa;
+background:#1a1a1c;
 border-radius:8px;
 cursor:pointer;
-font-weight:500;
-}
-
-.time-slot:hover{
-background:#0078d4;
-color:white;
 }
 
 .time-slot.selected{
-background:#005ea6;
-color:white;
+background:white;
+color:black;
 }
 
-/* modal */
+/* MODAL */
 
 #reservationModal{
 display:none;
@@ -178,16 +166,16 @@ top:0;
 left:0;
 width:100%;
 height:100%;
-background:rgba(0,0,0,0.6);
+background:rgba(0,0,0,0.8);
 justify-content:center;
 align-items:center;
 z-index:2000;
 }
 
 .modal-content{
-background:white;
-padding:30px;
-border-radius:10px;
+background:#1a1a1c;
+padding:25px;
+border-radius:15px;
 width:400px;
 max-width:95%;
 }
@@ -195,51 +183,39 @@ max-width:95%;
 .modal-content input,
 .modal-content select{
 width:100%;
-padding:8px;
+padding:10px;
 margin-bottom:10px;
-border:1px solid #ccc;
-border-radius:5px;
+border:none;
+border-radius:8px;
+background:#2a2a2c;
+color:white;
 }
 
 .modal-content button{
 width:100%;
-padding:10px;
-background:#0078d4;
-color:white;
+padding:12px;
 border:none;
-border-radius:5px;
+border-radius:25px;
+background:white;
+color:black;
 cursor:pointer;
 margin-bottom:8px;
 }
 
 #successMessage{
 text-align:center;
-color:green;
-font-weight:bold;
 margin-top:10px;
 }
 
-/* horaires salon */
+/* MOBILE */
 
-.hours{
-margin-top:40px;
+@media (max-width:768px){
+
+.salon-header{
+flex-direction:column;
+gap:15px;
 }
 
-.hours h2{
-color:#0078d4;
-}
-
-.hours-grid{
-display:grid;
-grid-template-columns:1fr 1fr;
-background:#f3f6fa;
-padding:20px;
-border-radius:10px;
-}
-
-.hours-grid div{
-padding:8px 0;
-border-bottom:1px solid #ddd;
 }
 
 </style>
@@ -255,11 +231,10 @@ border-bottom:1px solid #ddd;
 
 <div class="salon-info">
 <h1>L'homme du jazz</h1>
-<p class="address">12 rue des Augustins, 57000 Metz</p>
+<p class="address">12 rue des Augustins, Metz</p>
 
 <p class="reviews" onclick="toggleReviews()">
-⭐⭐⭐⭐⭐ (0 avis)
-<span id="arrow">▼</span>
+⭐⭐⭐⭐⭐ (0 avis) ▼
 </p>
 
 <div class="reviews-list" id="reviewsList">
@@ -273,8 +248,6 @@ border-bottom:1px solid #ddd;
 </div>
 
 <div class="carousel">
-<button class="prev">&#10094;</button>
-<div class="carousel-track-container">
 <div class="carousel-track">
 <img src="salon1.png" class="carousel-item">
 <img src="salon2.png" class="carousel-item">
@@ -283,35 +256,33 @@ border-bottom:1px solid #ddd;
 <img src="salon5.png" class="carousel-item">
 </div>
 </div>
-<button class="next">&#10095;</button>
-</div>
 
 <div class="service-category">
 
 <h2>Prestations</h2>
 
 <div class="service-item">
-<span>Coupe classique homme - 30 min - 21€</span>
+<span>Coupe classique homme - 21€</span>
 <button onclick="selectService('Coupe classique homme',30)">Choisir</button>
 </div>
 
 <div class="service-item">
-<span>Dégradé américain - 30 min - 30€</span>
+<span>Dégradé américain - 30€</span>
 <button onclick="selectService('Dégradé américain',30)">Choisir</button>
 </div>
 
 <div class="service-item">
-<span>Coupe enfant - 30 min - 16€</span>
+<span>Coupe enfant - 16€</span>
 <button onclick="selectService('Coupe enfant',30)">Choisir</button>
 </div>
 
 <div class="service-item">
-<span>Coupe + barbe tondeuse - 45 min - 29€</span>
+<span>Coupe + barbe tondeuse - 29€</span>
 <button onclick="selectService('Coupe + barbe tondeuse',45)">Choisir</button>
 </div>
 
 <div class="service-item">
-<span>Coupe + barbe coupe choux - 60 min - 45€</span>
+<span>Coupe + barbe coupe choux - 45€</span>
 <button onclick="selectService('Coupe + barbe coupe choux',60)">Choisir</button>
 </div>
 
@@ -319,11 +290,13 @@ border-bottom:1px solid #ddd;
 
 </div>
 
+<!-- MODAL -->
+
 <div id="reservationModal">
 
 <div class="modal-content">
 
-<h2>Réserver un rendez-vous</h2>
+<h2>Réserver</h2>
 
 <form id="reservationForm">
 
@@ -335,15 +308,12 @@ border-bottom:1px solid #ddd;
 <input type="email" name="email" placeholder="Email" required>
 <input type="text" name="telephone" placeholder="Téléphone" required>
 
-<label>Coiffeur</label>
 <select id="coiffeurInput" name="coiffeur">
 <option value="Edin">Edin</option>
 </select>
 
-<label>Date</label>
 <input type="date" name="date" required>
 
-<label>Choisir un horaire</label>
 <div id="timeSlots" class="time-slots"></div>
 
 <button type="submit">Confirmer</button>
@@ -380,45 +350,32 @@ document.getElementById("reservationModal").style.display="none";
 }
 
 function generateTimeSlots(){
-
 const container=document.getElementById("timeSlots");
 container.innerHTML="";
 
-const start=9;
-const end=19;
-
-for(let h=start;h<end;h++){
-
+for(let h=9;h<19;h++){
 ["00","30"].forEach(min=>{
-
 const time=h.toString().padStart(2,"0")+":"+min;
-
 const slot=document.createElement("div");
 slot.className="time-slot";
 slot.innerText=time;
 
 slot.onclick=()=>{
-
 document.querySelectorAll(".time-slot").forEach(s=>s.classList.remove("selected"));
 slot.classList.add("selected");
 selectedTime=time;
-
 };
 
 container.appendChild(slot);
-
 });
-
 }
-
 }
 
 document.getElementById("reservationForm").addEventListener("submit",async(e)=>{
-
 e.preventDefault();
 
 if(!selectedTime){
-alert("Veuillez choisir un créneau");
+alert("Choisissez un horaire");
 return;
 }
 
@@ -440,35 +397,22 @@ salon:"homme-du-jazz"
 const res=await fetch("/reservation",{
 method:"POST",
 headers:{"Content-Type":"application/json"},
-credentials:"include", // ✅ AJOUT IMPORTANT
+credentials:"include",
 body:JSON.stringify(data)
 });
 
 const result=await res.json();
 
-console.log(result);
-
 if(result.success){
-document.getElementById("successMessage").innerText="✅ Rendez-vous confirmé !";
+document.getElementById("successMessage").innerText="✅ Rendez-vous confirmé";
 } else {
-document.getElementById("successMessage").innerText="❌ " + (result.message || "Erreur lors de la réservation");
+document.getElementById("successMessage").innerText="❌ " + (result.message || "Erreur");
 }
-
 });
 
 function toggleReviews(){
-
 const list=document.getElementById("reviewsList");
-const arrow=document.getElementById("arrow");
-
-if(list.style.display==="block"){
-list.style.display="none";
-arrow.innerText="▼";
-}else{
-list.style.display="block";
-arrow.innerText="▲";
-}
-
+list.style.display = list.style.display==="block"?"none":"block";
 }
 
 </script>
