@@ -264,6 +264,7 @@ gap:15px;
 </p>
 
 <div class="reviews-list" id="reviewsList">
+
 <p>Aucun avis pour le moment</p>
 
 <button class="add-review-btn" onclick="showReviewForm()">+ Ajouter un avis</button>
@@ -302,9 +303,43 @@ gap:15px;
 </div>
 </div>
 
+<!-- PRESTATIONS -->
+<div class="service-category">
+
+<h2>Prestations</h2>
+
+<div class="service-item">
+<span>Coupe classique homme - 21€</span>
+<button onclick="selectService('Coupe classique homme',30)">Choisir</button>
 </div>
 
+<div class="service-item">
+<span>Dégradé américain - 30€</span>
+<button onclick="selectService('Dégradé américain',30)">Choisir</button>
+</div>
+
+<div class="service-item">
+<span>Coupe enfant - 16€</span>
+<button onclick="selectService('Coupe enfant',30)">Choisir</button>
+</div>
+
+<div class="service-item">
+<span>Coupe + barbe tondeuse - 29€</span>
+<button onclick="selectService('Coupe + barbe tondeuse',45)">Choisir</button>
+</div>
+
+<div class="service-item">
+<span>Coupe + barbe coupe choux - 45€</span>
+<button onclick="selectService('Coupe + barbe coupe choux',60)">Choisir</button>
+</div>
+
+</div>
+
+</div>
+
+<!-- MODAL -->
 <div id="reservationModal">
+
 <div class="modal-content">
 
 <h2>Réserver</h2>
@@ -339,7 +374,89 @@ gap:15px;
 
 <script>
 
+let selectedService="";
+let selectedDuree=30;
 let selectedTime="";
+
+function selectService(service,duree){
+selectedService=service;
+selectedDuree=duree;
+openReservation();
+}
+
+function openReservation(){
+document.getElementById("reservationModal").style.display="flex";
+document.getElementById("serviceInput").value=selectedService;
+document.getElementById("dureeInput").value=selectedDuree;
+generateTimeSlots();
+}
+
+function closeReservation(){
+document.getElementById("reservationModal").style.display="none";
+}
+
+function generateTimeSlots(){
+const container=document.getElementById("timeSlots");
+container.innerHTML="";
+
+for(let h=9;h<19;h++){
+["00","30"].forEach(min=>{
+const time=h.toString().padStart(2,"0")+":"+min;
+const slot=document.createElement("div");
+slot.className="time-slot";
+slot.innerText=time;
+
+slot.onclick=()=>{
+document.querySelectorAll(".time-slot").forEach(s=>s.classList.remove("selected"));
+slot.classList.add("selected");
+selectedTime=time;
+};
+
+container.appendChild(slot);
+});
+}
+}
+
+document.getElementById("reservationForm").addEventListener("submit",async(e)=>{
+e.preventDefault();
+
+if(!selectedTime){
+alert("Choisissez un horaire");
+return;
+}
+
+const form=e.target;
+
+const data={
+service:form.service.value,
+duree:parseInt(form.duree.value),
+nom:form.nom.value,
+prenom:form.prenom.value,
+email:form.email.value,
+telephone:form.telephone.value,
+date:form.date.value,
+heure:selectedTime,
+coiffeur:document.getElementById("coiffeurInput").value,
+salon:"homme-du-jazz"
+};
+
+const res=await fetch("/reservation",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+credentials:"include",
+body:JSON.stringify(data)
+});
+
+const result=await res.json();
+
+if(result.success){
+document.getElementById("successMessage").innerText="✅ Rendez-vous confirmé";
+} else {
+document.getElementById("successMessage").innerText="❌ " + (result.message || "Erreur");
+}
+});
+
+// ===== AVIS =====
 
 function toggleReviews(){
 const list=document.getElementById("reviewsList");
@@ -352,6 +469,7 @@ document.getElementById("reviewForm").style.display="block";
 }
 
 async function loadReviews(){
+
 const res=await fetch("http://localhost:3000/avis/homme-du-jazz");
 const data=await res.json();
 
@@ -360,8 +478,24 @@ const count=document.getElementById("reviewCount");
 
 count.innerText=data.length;
 
+container.innerHTML="";
+
 if(data.length===0){
-container.innerHTML=`<p>Aucun avis pour le moment</p>
+container.innerHTML="<p>Aucun avis pour le moment</p>";
+}
+
+data.forEach(r=>{
+const div=document.createElement("div");
+div.className="review-item";
+div.innerHTML=`
+<strong>${r.nom}</strong><br>
+⭐ ${r.note}/5<br>
+<p>${r.commentaire}</p>
+`;
+container.appendChild(div);
+});
+
+container.innerHTML += `
 <button class="add-review-btn" onclick="showReviewForm()">+ Ajouter un avis</button>
 
 <div class="review-form" id="reviewForm">
@@ -378,22 +512,9 @@ container.innerHTML=`<p>Aucun avis pour le moment</p>
 </select>
 
 <button onclick="submitReview()">Publier</button>
-</div>`;
-return;
-}
-
-container.innerHTML="";
-
-data.forEach(r=>{
-const div=document.createElement("div");
-div.className="review-item";
-div.innerHTML=`
-<strong>${r.nom}</strong><br>
-⭐ ${r.note}/5<br>
-<p>${r.commentaire}</p>
+</div>
 `;
-container.appendChild(div);
-});
+
 }
 
 async function submitReview(){
@@ -420,14 +541,6 @@ note:parseInt(note)
 
 alert("Avis publié !");
 loadReviews();
-}
-
-function openReservation(){
-document.getElementById("reservationModal").style.display="flex";
-}
-
-function closeReservation(){
-document.getElementById("reservationModal").style.display="none";
 }
 
 </script>
