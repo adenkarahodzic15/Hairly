@@ -14,9 +14,27 @@
 body{
 margin:0;
 font-family:'Roboto', sans-serif;
-background:url('RETA.png') center/cover no-repeat;
+
+/* MOBILE IMAGE */
+background:url('bg-mobile.jpg') center/cover no-repeat;
 min-height:100vh;
-color:black;
+color:#fff;
+}
+
+/* DESKTOP IMAGE */
+@media (min-width:768px){
+body{
+background:url('bg-desktop.jpg') center/cover no-repeat;
+}
+}
+
+/* OVERLAY PRO */
+body::before{
+content:"";
+position:fixed;
+inset:0;
+background:rgba(0,0,0,0.35);
+z-index:-1;
 }
 
 /* NAVBAR */
@@ -27,56 +45,58 @@ top:0;
 left:0;
 width:100%;
 display:flex;
-justify-content:space-between;
 align-items:center;
+justify-content:space-between;
 padding:15px 25px;
-background:rgba(255,255,255,0.95);
-box-shadow:0 2px 10px rgba(0,0,0,0.1);
-z-index:1000;
-flex-wrap:wrap;
 box-sizing:border-box;
+z-index:1000;
 }
 
+/* LOGO */
 .logo{
 font-size:28px;
 font-weight:700;
-color:#0078d4;
+color:white;
 }
 
+/* MENU CENTRÉ */
+
 .menu{
+position:absolute;
+left:50%;
+transform:translateX(-50%);
 display:flex;
-gap:15px;
-justify-content:center;
-flex:1;
+gap:25px;
 }
 
 .menu a{
 text-decoration:none;
-padding:8px 15px;
-border-radius:25px;
-background:#f2f2f2;
-font-size:14px;
+font-size:16px;
 font-weight:500;
-color:#333;
-transition:0.2s;
+color:white;
+opacity:0.9;
 }
 
 .menu a:hover{
-background:#0078d4;
-color:white;
+opacity:1;
 }
 
-.login{
-padding:8px 16px;
-border-radius:25px;
-background:#0078d4;
-color:white;
-font-size:14px;
+/* ICON USER */
+
+.user-icon{
 cursor:pointer;
+display:flex;
+align-items:center;
+background:rgba(255,255,255,0.15);
+padding:10px;
+border-radius:50%;
+backdrop-filter:blur(8px);
 }
 
-.login:hover{
-background:#005a9e;
+.user-icon svg{
+width:22px;
+height:22px;
+fill:white;
 }
 
 /* LOGIN BOX */
@@ -108,7 +128,7 @@ width:100%;
 padding:10px;
 border:none;
 border-radius:6px;
-background:#0078d4;
+background:black;
 color:white;
 cursor:pointer;
 }
@@ -135,12 +155,13 @@ box-sizing:border-box;
 .hero h1{
 font-size:44px;
 margin-bottom:10px;
+font-weight:700;
 }
 
 .hero p{
 font-size:18px;
 margin-bottom:35px;
-color:#333;
+opacity:0.9;
 }
 
 /* SEARCH */
@@ -154,30 +175,35 @@ align-items:center;
 position:relative;
 }
 
+/* INPUT STYLE PREMIUM */
+
 input{
+width:100%;
+padding:18px;
+font-size:16px;
+border-radius:30px;
+border:none;
+margin-bottom:12px;
+box-sizing:border-box;
+background:rgba(255,255,255,0.9);
+}
+
+/* BUTTON STYLE PREMIUM */
+
+button{
 width:100%;
 padding:16px;
 font-size:16px;
 border-radius:30px;
-border:1px solid #ccc;
-margin-bottom:12px;
-box-sizing:border-box;
-}
-
-button{
-width:100%;
-padding:14px;
-font-size:16px;
-border-radius:30px;
 border:none;
-background:#0078d4;
+background:black;
 color:white;
 cursor:pointer;
 transition:0.2s;
 }
 
 button:hover{
-background:#005a9e;
+opacity:0.85;
 }
 
 /* suggestions */
@@ -197,6 +223,7 @@ z-index:100;
 .suggestion{
 padding:12px;
 cursor:pointer;
+color:#000;
 }
 
 .suggestion:hover{
@@ -207,28 +234,12 @@ background:#f0f0f0;
 
 @media (max-width:768px){
 
-.logo{
-font-size:24px;
-}
-
 .menu{
+position:static;
+transform:none;
 width:100%;
-order:3;
 justify-content:center;
 margin-top:10px;
-}
-
-.menu a{
-font-size:14px;
-padding:8px 14px;
-}
-
-.login{
-order:2;
-}
-
-.hero{
-padding-top:140px;
 }
 
 .hero h1{
@@ -239,28 +250,12 @@ font-size:28px;
 font-size:16px;
 }
 
-.search-container{
-max-width:none;
-}
-
-input{
-font-size:18px;
-padding:18px;
-}
-
-button{
-font-size:18px;
-padding:18px;
-}
-
 }
 
 </style>
 </head>
 
 <body>
-
-<!-- NAVBAR -->
 
 <div class="navbar">
 
@@ -271,16 +266,17 @@ padding:18px;
 <a href="contact.html">Contact</a>
 </div>
 
-<div class="login" onclick="toggleLogin()">Connexion</div>
-
+<div class="user-icon" onclick="toggleLogin()">
+<svg viewBox="0 0 24 24">
+<path d="M12 12c2.7 0 5-2.3 5-5s-2.3-5-5-5-5 2.3-5 5 2.3 5 5 5zm0 2c-3.3 0-10 1.7-10 5v3h20v-3c0-3.3-6.7-5-10-5z"/>
+</svg>
 </div>
 
-<!-- LOGIN BOX -->
+</div>
 
 <div id="loginBox">
 
 <input id="loginEmail" placeholder="Email">
-
 <input id="loginPassword" type="password" placeholder="Mot de passe">
 
 <button onclick="login()">Se connecter</button>
@@ -289,17 +285,14 @@ padding:18px;
 
 </div>
 
-<!-- HERO -->
-
 <div class="hero">
 
 <h1>Bienvenue sur Hairly</h1>
-
 <p>Trouvez et réservez votre salon de coiffure en quelques secondes</p>
 
 <div class="search-container">
 
-<input id="search" type="text" placeholder="Recherchez un salon ou une ville...">
+<input id="search" type="text" placeholder="Rechercher un salon ou une ville...">
 
 <div id="suggestions" class="suggestions">
 <div class="suggestion" onclick="goSalon()">L'homme du jazz</div>
@@ -363,7 +356,7 @@ body:JSON.stringify({email,password})
 const data=await res.json();
 
 if(data.success){
-window.location.href="/dashboard/"+data.slug;
+window.location.href=data.redirect;
 }else{
 document.getElementById("errorLogin").innerText="Email ou mot de passe incorrect";
 }
