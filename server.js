@@ -104,15 +104,15 @@ app.get("/dashboard/:slug", (req, res) => {
 app.get("/dashboard-reservations", async (req, res) => {
 
   if (!req.session.salon) {
-    return res.status(401).json({ error: "Non connecté" });
+    return res.status(401).json([]);
   }
 
-  console.log("SESSION SLUG:", req.session.salon.slug);
+  const salon = req.session.salon.slug;
 
   const { data, error } = await supabase
     .from('reservation')
     .select('*')
-    .eq('salon', req.session.salon.slug);
+    .eq('salon', salon);
 
   if (error) {
     console.log("GET ERROR:", error);
@@ -131,7 +131,8 @@ app.post("/reservation", async (req, res) => {
     return res.json({ success: false, message: "Champs manquants" });
   }
 
-  const salon = req.session?.salon?.slug || "homme-du-jazz";
+  // 🔥 FIX : salon FORCÉ (important)
+  const salon = "homme-du-jazz";
 
   const duree = prestations[service] || 30;
 
@@ -171,66 +172,35 @@ app.post("/reservation", async (req, res) => {
     return res.json({ success: false });
   }
 
-  const emailSalon = process.env.HOMME_DU_JAZZ_EMAIL;
-
-  if (emailSalon) {
-    transporter.sendMail({
-      from: "Hairly <edinedo52@gmail.com>",
-      to: emailSalon,
-      subject: "Nouveau rendez-vous",
-      text: `Rendez-vous:\n${nom} ${prenom}\n${date} ${heure}`
-    });
-  }
-
   res.json({ success: true });
 });
 
+// ===== AVIS =====
+app.get("/avis/:salon", async (req, res) => {
 
-// =========================
-// ===== AVIS (NOUVEAU) =====
-// =========================
-
-// GET avis d'un salon
-app.get("/avis/:salonId", async (req, res) => {
-
-  const { salonId } = req.params;
-
-  const { data, error } = await supabase
+  const { data } = await supabase
     .from("avis")
     .select("*")
-    .eq("salon_id", salonId)
+    .eq("salon", req.params.salon)
     .order("created_at", { ascending: false });
-
-  if (error) {
-    console.log("GET AVIS ERROR:", error);
-    return res.status(500).json([]);
-  }
 
   res.json(data || []);
 });
 
-// POST nouvel avis
 app.post("/avis", async (req, res) => {
 
-  const { salon_id, nom, commentaire, note } = req.body;
+  const { salon, nom, commentaire, note } = req.body;
 
-  if (!salon_id || !nom || !commentaire || !note) {
-    return res.status(400).json({ success: false, message: "Champs manquants" });
+  if (!nom || !commentaire || !note) {
+    return res.json({ success: false });
   }
 
-  const { error } = await supabase
-    .from("avis")
-    .insert([{
-      salon_id,
-      nom,
-      commentaire,
-      note
-    }]);
-
-  if (error) {
-    console.log("INSERT AVIS ERROR:", error);
-    return res.status(500).json({ success: false });
-  }
+  await supabase.from("avis").insert([{
+    salon,
+    nom,
+    commentaire,
+    note
+  }]);
 
   res.json({ success: true });
 });
