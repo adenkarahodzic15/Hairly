@@ -100,7 +100,7 @@ app.get("/dashboard/:slug", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "agenda.html"));
 });
 
-// ===== RECUPERER RDV =====
+// ===== GET RDV =====
 app.get("/dashboard-reservations", async (req, res) => {
 
   if (!req.session.salon) {
@@ -122,24 +122,28 @@ app.get("/dashboard-reservations", async (req, res) => {
   res.json(data || []);
 });
 
-// ===== RESERVATION =====
+// ===== CREATE RDV =====
 app.post("/reservation", async (req, res) => {
 
-  const { service, nom, prenom, telephone, email, date, heure, coiffeur } = req.body;
+  const { service, nom, prenom, telephone, email, date, heure, coiffeur, salon } = req.body;
 
   if (!service || !nom || !date || !heure) {
     return res.json({ success: false, message: "Champs manquants" });
   }
 
-  // 🔥 FIX : salon FORCÉ (important)
-  const salon = "homme-du-jazz";
+  // 🔥 IMPORTANT FIX
+  const salonFinal = salon || req.session?.salon?.slug;
+
+  if (!salonFinal) {
+    return res.json({ success: false, message: "Salon manquant" });
+  }
 
   const duree = prestations[service] || 30;
 
   const { data: reservationsExist } = await supabase
     .from('reservation')
     .select('*')
-    .eq('salon', salon)
+    .eq('salon', salonFinal)
     .eq('date', date);
 
   const heureDebut = parseInt(heure.split(":")[0]) * 60 + parseInt(heure.split(":")[1]);
@@ -155,7 +159,7 @@ app.post("/reservation", async (req, res) => {
   }
 
   const { error } = await supabase.from('reservation').insert([{
-    salon,
+    salon: salonFinal,
     service,
     duree,
     nom,
@@ -175,14 +179,37 @@ app.post("/reservation", async (req, res) => {
   res.json({ success: true });
 });
 
+// ===== DELETE RDV =====
+app.delete("/reservation/:id", async (req, res) => {
+
+  const { id } = req.params;
+
+  const { error } = await supabase
+    .from("reservation")
+    .delete()
+    .eq("id", id);
+
+  if (error) {
+    console.log("DELETE ERROR:", error);
+    return res.json({ success: false });
+  }
+
+  res.json({ success: true });
+});
+
 // ===== AVIS =====
 app.get("/avis/:salon", async (req, res) => {
 
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("avis")
     .select("*")
     .eq("salon", req.params.salon)
     .order("created_at", { ascending: false });
+
+  if (error) {
+    console.log(error);
+    return res.json([]);
+  }
 
   res.json(data || []);
 });
@@ -191,16 +218,21 @@ app.post("/avis", async (req, res) => {
 
   const { salon, nom, commentaire, note } = req.body;
 
-  if (!nom || !commentaire || !note) {
+  if (!salon || !nom || !commentaire || !note) {
     return res.json({ success: false });
   }
 
-  await supabase.from("avis").insert([{
+  const { error } = await supabase.from("avis").insert([{
     salon,
     nom,
     commentaire,
     note
   }]);
+
+  if (error) {
+    console.log("AVIS ERROR:", error);
+    return res.json({ success: false });
+  }
 
   res.json({ success: true });
 });
