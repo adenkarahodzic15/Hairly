@@ -2,7 +2,6 @@ require('dotenv').config();
 
 const express = require('express');
 const { createClient } = require('@supabase/supabase-js');
-const nodemailer = require('nodemailer');
 const bcrypt = require('bcryptjs');
 const session = require('express-session');
 const path = require('path');
@@ -10,14 +9,11 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// ===== LOG REQUESTS (DEBUG) =====
-app.use((req,res,next)=>{
-  console.log("REQ:", req.method, req.url);
-  next();
-});
-
 // ===== SUPABASE =====
-const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_KEY
+);
 
 // ===== MIDDLEWARE =====
 app.use(express.json());
@@ -35,6 +31,12 @@ app.use(session({
     sameSite: "lax"
   }
 }));
+
+// ===== DEBUG =====
+app.use((req, res, next) => {
+  console.log("REQ:", req.method, req.url);
+  next();
+});
 
 // ===== PRESTATIONS =====
 const prestations = {
@@ -88,7 +90,7 @@ app.get("/dashboard/:slug", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "agenda.html"));
 });
 
-// ===== GET RDV =====
+// ===== GET RDV (AGENDA) =====
 app.get("/dashboard-reservations", async (req, res) => {
 
   if (!req.session.salon) {
@@ -115,9 +117,19 @@ app.post("/reservation", async (req, res) => {
 
   try {
 
-    const { service, nom, prenom, telephone, email, date, heure, coiffeur, salon } = req.body;
+    const {
+      service,
+      nom,
+      prenom,
+      telephone,
+      email,
+      date,
+      heure,
+      coiffeur,
+      salon
+    } = req.body;
 
-    if (!service || !nom || !date || !heure) {
+    if (!nom || !date || !heure) {
       return res.json({ success: false, message: "Champs manquants" });
     }
 
@@ -129,6 +141,7 @@ app.post("/reservation", async (req, res) => {
 
     const duree = prestations[service] || 30;
 
+    // Vérif conflits
     const { data: reservationsExist } = await supabase
       .from('reservation')
       .select('*')
@@ -147,27 +160,31 @@ app.post("/reservation", async (req, res) => {
       return res.json({ success: false, message: "Créneau déjà pris" });
     }
 
-    const { error } = await supabase.from('reservation').insert([{
-      salon: salonFinal,
-      service,
-      duree,
-      nom,
-      prenom,
-      telephone,
-      email,
-      date,
-      heure,
-      coiffeur
-    }]);
+    const { data, error } = await supabase
+      .from('reservation')
+      .insert([{
+        salon: salonFinal,
+        service,
+        duree,
+        nom,
+        prenom,
+        telephone,
+        email,
+        date,
+        heure,
+        coiffeur
+      }])
+      .select(); // important pour récupérer l'id
 
     if (error) {
       console.log("INSERT ERROR:", error);
       return res.json({ success: false });
     }
 
-    console.log("✅ RDV ajouté :", nom, date, heure);
-
-    res.json({ success: true });
+    res.json({
+      success: true,
+      id: data?.[0]?.id
+    });
 
   } catch (err) {
     console.log("SERVER ERROR:", err);

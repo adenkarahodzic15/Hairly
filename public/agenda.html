@@ -39,13 +39,15 @@ font-weight:500;
 }
 
 #calendar{
-max-width:1000px;
+max-width:1100px;
 margin:20px auto;
 background:white;
 padding:10px;
 border-radius:12px;
+color:black;
 }
 
+/* MODAL */
 #modal{
 display:none;
 position:fixed;
@@ -63,7 +65,7 @@ background:white;
 color:black;
 padding:25px;
 border-radius:10px;
-width:300px;
+width:320px;
 }
 
 .modal-content input{
@@ -144,32 +146,44 @@ document.addEventListener('DOMContentLoaded', async function() {
     const reservations = await res.json();
 
     const events = reservations.map(r => {
-      let heureISO = r.heure.length === 5 ? r.heure + ":00" : r.heure;
+      let heureISO = r.heure?.length === 5 ? r.heure + ":00" : r.heure;
 
       return {
         id: r.id,
-        title: `${r.nom} ${r.prenom}`,
+        title: `${r.nom} ${r.prenom} - ${r.telephone || ""}`,
         start: `${r.date}T${heureISO}`
       };
     });
 
     calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
+
       initialView: 'timeGridWeek',
       locale: 'fr',
       firstDay: 1,
+
+      headerToolbar: {
+        left: 'prev,next today',
+        center: 'title',
+        right: 'timeGridWeek,dayGridMonth'
+      },
+
       slotMinTime: "08:00:00",
       slotMaxTime: "20:00:00",
+
       events: events,
 
-      // ===== DELETE RDV =====
+      // ===== CLICK EVENT (SUPPRIMER) =====
       eventClick: async function(info){
 
-        if(confirm("Supprimer ce rendez-vous ?")){
+        const confirmDelete = confirm("Supprimer ce rendez-vous ?");
+
+        if(confirmDelete){
 
           try {
 
             const res = await fetch(window.location.origin + "/reservation/" + info.event.id,{
-              method:"DELETE"
+              method:"DELETE",
+              credentials:"include"
             });
 
             const result = await res.json();
@@ -245,7 +259,8 @@ const result = await res.json();
 if(result.success){
 
 calendar.addEvent({
-title: nom + " " + prenom,
+id: result.id, // important si backend renvoie id
+title: nom + " " + prenom + " - " + telephone,
 start: date + "T" + heure
 });
 
