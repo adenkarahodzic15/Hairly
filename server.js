@@ -125,61 +125,69 @@ app.get("/dashboard-reservations", async (req, res) => {
 // ===== CREATE RDV =====
 app.post("/reservation", async (req, res) => {
 
-  const { service, nom, prenom, telephone, email, date, heure, coiffeur, salon } = req.body;
+  try {
 
-  if (!service || !nom || !date || !heure) {
-    return res.json({ success: false, message: "Champs manquants" });
+    const { service, nom, prenom, telephone, email, date, heure, coiffeur, salon } = req.body;
+
+    if (!service || !nom || !date || !heure) {
+      return res.json({ success: false, message: "Champs manquants" });
+    }
+
+    const salonFinal = salon || req.session?.salon?.slug;
+
+    if (!salonFinal) {
+      return res.json({ success: false, message: "Salon manquant" });
+    }
+
+    const duree = prestations[service] || 30;
+
+    const { data: reservationsExist } = await supabase
+      .from('reservation')
+      .select('*')
+      .eq('salon', salonFinal)
+      .eq('date', date);
+
+    const heureDebut = parseInt(heure.split(":")[0]) * 60 + parseInt(heure.split(":")[1]);
+
+    const overlap = (reservationsExist || []).some(r => {
+      const rDebut = parseInt(r.heure.split(":")[0]) * 60 + parseInt(r.heure.split(":")[1]);
+      const rFin = rDebut + (r.duree || 30);
+      return (heureDebut < rFin && (heureDebut + duree) > rDebut);
+    });
+
+    if (overlap) {
+      return res.json({ success: false, message: "Créneau déjà pris" });
+    }
+
+    const { error } = await supabase.from('reservation').insert([{
+      salon: salonFinal,
+      service,
+      duree,
+      nom,
+      prenom,
+      telephone,
+      email,
+      date,
+      heure,
+      coiffeur
+    }]);
+
+    if (error) {
+      console.log("INSERT ERROR:", error);
+      return res.json({ success: false });
+    }
+
+    console.log("✅ RDV ajouté :", nom, date, heure);
+
+    res.json({ success: true });
+
+  } catch (err) {
+    console.log("SERVER ERROR:", err);
+    res.json({ success: false });
   }
-
-  // 🔥 IMPORTANT FIX
-  const salonFinal = salon || req.session?.salon?.slug;
-
-  if (!salonFinal) {
-    return res.json({ success: false, message: "Salon manquant" });
-  }
-
-  const duree = prestations[service] || 30;
-
-  const { data: reservationsExist } = await supabase
-    .from('reservation')
-    .select('*')
-    .eq('salon', salonFinal)
-    .eq('date', date);
-
-  const heureDebut = parseInt(heure.split(":")[0]) * 60 + parseInt(heure.split(":")[1]);
-
-  const overlap = (reservationsExist || []).some(r => {
-    const rDebut = parseInt(r.heure.split(":")[0]) * 60 + parseInt(r.heure.split(":")[1]);
-    const rFin = rDebut + (r.duree || 30);
-    return (heureDebut < rFin && (heureDebut + duree) > rDebut);
-  });
-
-  if (overlap) {
-    return res.json({ success: false, message: "Créneau déjà pris" });
-  }
-
-  const { error } = await supabase.from('reservation').insert([{
-    salon: salonFinal,
-    service,
-    duree,
-    nom,
-    prenom,
-    telephone,
-    email,
-    date,
-    heure,
-    coiffeur
-  }]);
-
-  if (error) {
-    console.log("INSERT ERROR:", error);
-    return res.json({ success: false });
-  }
-
-  res.json({ success: true });
 });
 
-// ===== DELETE RDV =====
+// ===== DELETE RDV (FIX IMPORTANT) =====
 app.delete("/reservation/:id", async (req, res) => {
 
   const { id } = req.params;
@@ -191,46 +199,6 @@ app.delete("/reservation/:id", async (req, res) => {
 
   if (error) {
     console.log("DELETE ERROR:", error);
-    return res.json({ success: false });
-  }
-
-  res.json({ success: true });
-});
-
-// ===== AVIS =====
-app.get("/avis/:salon", async (req, res) => {
-
-  const { data, error } = await supabase
-    .from("avis")
-    .select("*")
-    .eq("salon", req.params.salon)
-    .order("created_at", { ascending: false });
-
-  if (error) {
-    console.log(error);
-    return res.json([]);
-  }
-
-  res.json(data || []);
-});
-
-app.post("/avis", async (req, res) => {
-
-  const { salon, nom, commentaire, note } = req.body;
-
-  if (!salon || !nom || !commentaire || !note) {
-    return res.json({ success: false });
-  }
-
-  const { error } = await supabase.from("avis").insert([{
-    salon,
-    nom,
-    commentaire,
-    note
-  }]);
-
-  if (error) {
-    console.log("AVIS ERROR:", error);
     return res.json({ success: false });
   }
 

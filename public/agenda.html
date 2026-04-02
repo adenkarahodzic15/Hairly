@@ -16,8 +16,6 @@ background:#0f0f0f;
 color:white;
 }
 
-/* HEADER */
-
 .header{
 display:flex;
 justify-content:space-between;
@@ -30,8 +28,6 @@ margin:0;
 font-size:24px;
 }
 
-/* BOUTON + */
-
 .add-btn{
 background:white;
 color:black;
@@ -42,8 +38,6 @@ cursor:pointer;
 font-weight:500;
 }
 
-/* CALENDAR */
-
 #calendar{
 max-width:1000px;
 margin:20px auto;
@@ -51,8 +45,6 @@ background:white;
 padding:10px;
 border-radius:12px;
 }
-
-/* MODAL */
 
 #modal{
 display:none;
@@ -137,55 +129,74 @@ let calendar;
 // ===== LOAD =====
 document.addEventListener('DOMContentLoaded', async function() {
 
-  const res = await fetch("/dashboard-reservations", {
-    credentials:"include"
-  });
+  try {
 
-  if (res.status === 401) {
-    alert("Veuillez vous connecter");
-    window.location.href = "/login.html";
-    return;
-  }
+    const res = await fetch("/dashboard-reservations", {
+      credentials:"include"
+    });
 
-  const reservations = await res.json();
-
-  const events = reservations.map(r => {
-    let heureISO = r.heure.length === 5 ? r.heure + ":00" : r.heure;
-
-    return {
-      id: r.id,
-      title: `${r.nom} ${r.prenom}`,
-      start: `${r.date}T${heureISO}`
-    };
-  });
-
-  calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
-    initialView: 'timeGridWeek',
-    locale: 'fr',
-    firstDay: 1,
-    slotMinTime: "08:00:00",
-    slotMaxTime: "20:00:00",
-    events: events,
-
-    // 🔥 CLICK EVENT (SUPPRIMER)
-    eventClick: async function(info){
-
-      if(confirm("Supprimer ce rendez-vous ?")){
-
-        await fetch("/delete-reservation",{
-          method:"POST",
-          headers:{"Content-Type":"application/json"},
-          body:JSON.stringify({id:info.event.id})
-        });
-
-        info.event.remove();
-      }
-
+    if (res.status === 401) {
+      alert("Veuillez vous connecter");
+      window.location.href = "/login.html";
+      return;
     }
 
-  });
+    const reservations = await res.json();
 
-  calendar.render();
+    const events = reservations.map(r => {
+      let heureISO = r.heure.length === 5 ? r.heure + ":00" : r.heure;
+
+      return {
+        id: r.id,
+        title: `${r.nom} ${r.prenom}`,
+        start: `${r.date}T${heureISO}`
+      };
+    });
+
+    calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
+      initialView: 'timeGridWeek',
+      locale: 'fr',
+      firstDay: 1,
+      slotMinTime: "08:00:00",
+      slotMaxTime: "20:00:00",
+      events: events,
+
+      // ✅ DELETE FIX
+      eventClick: async function(info){
+
+        if(confirm("Supprimer ce rendez-vous ?")){
+
+          try {
+
+            const res = await fetch("/reservation/" + info.event.id,{
+              method:"DELETE"
+            });
+
+            const result = await res.json();
+
+            if(result.success){
+              info.event.remove();
+            } else {
+              alert("Erreur suppression");
+            }
+
+          } catch(err){
+            console.error(err);
+            alert("Erreur serveur");
+          }
+
+        }
+
+      }
+
+    });
+
+    calendar.render();
+
+  } catch (err){
+    console.error(err);
+    alert("Erreur chargement agenda");
+  }
 
 });
 
@@ -212,6 +223,8 @@ alert("Champs obligatoires");
 return;
 }
 
+try {
+
 const res = await fetch("/reservation",{
 method:"POST",
 headers:{"Content-Type":"application/json"},
@@ -236,10 +249,17 @@ title: nom + " " + prenom,
 start: date + "T" + heure
 });
 
+alert("✅ Rendez-vous ajouté");
+
 closeModal();
 
 }else{
-alert("Erreur");
+alert(result.message || "Erreur");
+}
+
+} catch(err){
+console.error(err);
+alert("Erreur serveur");
 }
 
 }
