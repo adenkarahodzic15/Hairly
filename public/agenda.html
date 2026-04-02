@@ -131,7 +131,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 
   try {
 
-    const res = await fetch("/dashboard-reservations", {
+    const res = await fetch(window.location.origin + "/dashboard-reservations", {
       credentials:"include"
     });
 
@@ -161,14 +161,14 @@ document.addEventListener('DOMContentLoaded', async function() {
       slotMaxTime: "20:00:00",
       events: events,
 
-      // ✅ DELETE FIX
+      // ===== DELETE RDV =====
       eventClick: async function(info){
 
         if(confirm("Supprimer ce rendez-vous ?")){
 
           try {
 
-            const res = await fetch("/reservation/" + info.event.id,{
+            const res = await fetch(window.location.origin + "/reservation/" + info.event.id,{
               method:"DELETE"
             });
 
@@ -225,7 +225,7 @@ return;
 
 try {
 
-const res = await fetch("/reservation",{
+const res = await fetch(window.location.origin + "/reservation",{
 method:"POST",
 headers:{"Content-Type":"application/json"},
 credentials:"include",

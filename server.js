@@ -10,6 +10,12 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// ===== LOG REQUESTS (DEBUG) =====
+app.use((req,res,next)=>{
+  console.log("REQ:", req.method, req.url);
+  next();
+});
+
 // ===== SUPABASE =====
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
 
@@ -29,17 +35,6 @@ app.use(session({
     sameSite: "lax"
   }
 }));
-
-// ===== EMAIL =====
-const transporter = nodemailer.createTransport({
-  host: "smtp-relay.brevo.com",
-  port: 587,
-  secure: false,
-  auth: {
-    user: process.env.BREVO_USER,
-    pass: process.env.BREVO_PASS
-  }
-});
 
 // ===== PRESTATIONS =====
 const prestations = {
@@ -80,13 +75,6 @@ app.post("/login", async (req, res) => {
       success: true,
       redirect: `/dashboard/${salon.slug}`
     });
-  });
-});
-
-// ===== LOGOUT =====
-app.get("/logout", (req, res) => {
-  req.session.destroy(() => {
-    res.redirect("/");
   });
 });
 
@@ -187,7 +175,7 @@ app.post("/reservation", async (req, res) => {
   }
 });
 
-// ===== DELETE RDV (FIX IMPORTANT) =====
+// ===== DELETE RDV =====
 app.delete("/reservation/:id", async (req, res) => {
 
   const { id } = req.params;
