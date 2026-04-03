@@ -5,9 +5,19 @@ const { createClient } = require('@supabase/supabase-js');
 const bcrypt = require('bcryptjs');
 const session = require('express-session');
 const path = require('path');
+const cors = require('cors');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// ===== TRUST PROXY (Render) =====
+app.set('trust proxy', 1);
+
+// ===== CORS =====
+app.use(cors({
+  origin: true,
+  credentials: true
+}));
 
 // ===== SUPABASE =====
 const supabase = createClient(
@@ -26,7 +36,7 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   cookie: {
-    secure: false,
+    secure: process.env.NODE_ENV === "production",
     httpOnly: true,
     sameSite: "lax"
   }
@@ -52,32 +62,38 @@ app.post("/login", async (req, res) => {
 
   const { email, password } = req.body;
 
-  const { data: salon } = await supabase
-    .from('salons')
-    .select('*')
-    .eq('email', email.trim().toLowerCase())
-    .single();
+  try {
+    const { data: salon } = await supabase
+      .from('salons')
+      .select('*')
+      .eq('email', email.trim().toLowerCase())
+      .single();
 
-  if (!salon) return res.json({ success: false });
+    if (!salon) return res.json({ success: false });
 
-  const valid =
-    (password === salon.password) ||
-    await bcrypt.compare(password, salon.password);
+    const valid =
+      (password === salon.password) ||
+      await bcrypt.compare(password, salon.password);
 
-  if (!valid) return res.json({ success: false });
+    if (!valid) return res.json({ success: false });
 
-  req.session.salon = {
-    id: salon.id,
-    slug: salon.slug,
-    email: salon.email
-  };
+    req.session.salon = {
+      id: salon.id,
+      slug: salon.slug,
+      email: salon.email
+    };
 
-  req.session.save(() => {
-    res.json({
-      success: true,
-      redirect: `/dashboard/${salon.slug}`
+    req.session.save(() => {
+      res.json({
+        success: true,
+        redirect: `/dashboard/${salon.slug}`
+      });
     });
-  });
+
+  } catch (err) {
+    console.log("LOGIN ERROR:", err);
+    res.json({ success: false });
+  }
 });
 
 // ===== DASHBOARD =====
@@ -90,7 +106,7 @@ app.get("/dashboard/:slug", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "agenda.html"));
 });
 
-// ===== GET RDV (AGENDA) =====
+// ===== GET RDV =====
 app.get("/dashboard-reservations", async (req, res) => {
 
   if (!req.session.salon) {
@@ -174,11 +190,11 @@ app.post("/reservation", async (req, res) => {
         heure,
         coiffeur
       }])
-      .select(); // important pour récupérer l'id
+      .select();
 
     if (error) {
       console.log("INSERT ERROR:", error);
-      return res.json({ success: false });
+      return res.json({ success: false, message: "Erreur insertion" });
     }
 
     res.json({
@@ -188,7 +204,7 @@ app.post("/reservation", async (req, res) => {
 
   } catch (err) {
     console.log("SERVER ERROR:", err);
-    res.json({ success: false });
+    res.json({ success: false, message: "Erreur serveur" });
   }
 });
 
@@ -216,4 +232,6 @@ app.get("/", (req, res) => {
 });
 
 // ===== START =====
-app.listen(PORT, () => console.log("Serveur lancé sur le port", PORT));
+app.listen(PORT, () => {
+  console.log("Serveur lancé sur le port", PORT);
+});
