@@ -120,7 +120,6 @@ color:black;
 
 <h1>L'homme du jazz</h1>
 
-<!-- PRESTATIONS -->
 <div class="service-item">
 <span>Coupe classique homme - 21€</span>
 <button onclick="selectService('Coupe classique homme',30)">Choisir</button>
@@ -238,9 +237,11 @@ salon:"homme-du-jazz"
 
 try{
 
-const res=await fetch("https://hairly.onrender.com/reservation",{
+const res=await fetch("https://hairly-5hth.onrender.com/reservation",{
 method:"POST",
-headers:{"Content-Type":"application/json"},
+headers:{
+"Content-Type":"application/json"
+},
 credentials:"include",
 body:JSON.stringify(data)
 });
