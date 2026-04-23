@@ -10,27 +10,22 @@ const cors = require('cors');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// ===== TRUST PROXY (Render) =====
 app.set('trust proxy', 1);
 
-// ===== CORS =====
 app.use(cors({
   origin: true,
   credentials: true
 }));
 
-// ===== SUPABASE =====
 const supabase = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_KEY
 );
 
-// ===== MIDDLEWARE =====
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static('public'));
 
-// ===== SESSION =====
 app.use(session({
   secret: process.env.SESSION_SECRET || "hairly_secret",
   resave: false,
@@ -42,13 +37,11 @@ app.use(session({
   }
 }));
 
-// ===== DEBUG =====
 app.use((req, res, next) => {
   console.log("REQ:", req.method, req.url);
   next();
 });
 
-// ===== PRESTATIONS =====
 const prestations = {
   "Coupe classique homme": 30,
   "Dégradé américain": 30,
@@ -145,19 +138,27 @@ app.post("/reservation", async (req, res) => {
       salon
     } = req.body;
 
+    console.log("BODY:", req.body); // 🔥 debug
+
     if (!nom || !date || !heure) {
       return res.json({ success: false, message: "Champs manquants" });
     }
 
-    const salonFinal = salon || req.session?.salon?.slug;
+    // 🔥 FIX IMPORTANT
+    let salonFinal = salon;
+
+    // fallback uniquement si connecté
+    if (!salonFinal && req.session?.salon?.slug) {
+      salonFinal = req.session.salon.slug;
+    }
 
     if (!salonFinal) {
+      console.log("SALON MANQUANT");
       return res.json({ success: false, message: "Salon manquant" });
     }
 
     const duree = prestations[service] || 30;
 
-    // Vérif conflits
     const { data: reservationsExist } = await supabase
       .from('reservation')
       .select('*')
@@ -194,7 +195,7 @@ app.post("/reservation", async (req, res) => {
 
     if (error) {
       console.log("INSERT ERROR:", error);
-      return res.json({ success: false, message: "Erreur insertion" });
+      return res.json({ success: false, message: error.message });
     }
 
     res.json({
