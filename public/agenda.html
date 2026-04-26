@@ -99,12 +99,9 @@ color:white;
 background:#ddd;
 }
 
-/* =========================
-📱 FIX MOBILE (SEULE MODIF)
-========================= */
+/* MOBILE */
 @media (max-width:768px){
 
-/* évite le zoom cassé */
 #calendar{
 max-width:100%;
 margin:10px;
@@ -112,12 +109,10 @@ padding:5px;
 overflow-x:auto;
 }
 
-/* force largeur calendrier → scroll horizontal */
 .fc{
 min-width:700px;
 }
 
-/* header compact */
 .header{
 flex-direction:column;
 align-items:flex-start;
@@ -129,7 +124,6 @@ padding:15px;
 font-size:20px;
 }
 
-/* bouton + flottant mobile */
 .add-btn{
 position:fixed;
 bottom:20px;
@@ -137,7 +131,6 @@ right:20px;
 z-index:2000;
 }
 
-/* toolbar FullCalendar plus petite */
 .fc-toolbar-title{
 font-size:14px !important;
 }
@@ -147,12 +140,10 @@ font-size:12px !important;
 padding:5px 8px !important;
 }
 
-/* heures à gauche */
 .fc-timegrid-axis{
 font-size:10px !important;
 }
 
-/* events */
 .fc-event{
 font-size:10px !important;
 padding:2px !important;
@@ -238,30 +229,20 @@ document.addEventListener('DOMContentLoaded', async function() {
 
       events: events,
 
-      eventClick: async function(info){
+      // ✅ CORRECTION ICI
+      eventClick: function(info){
 
-        if(confirm("Supprimer ce rendez-vous ?")){
+        const choix = prompt(
+          "1 = Valider le RDV\n2 = Supprimer le RDV"
+        );
 
-          try {
+        if(choix === "1"){
+          info.event.setProp("title", "✅ " + info.event.title);
+          info.event.setProp("backgroundColor", "green");
+        }
 
-            const res = await fetch(window.location.origin + "/reservation/" + info.event.id,{
-              method:"DELETE",
-              credentials:"include"
-            });
-
-            const result = await res.json();
-
-            if(result.success){
-              info.event.remove();
-            } else {
-              alert("Erreur suppression");
-            }
-
-          } catch(err){
-            console.error(err);
-            alert("Erreur serveur");
-          }
-
+        if(choix === "2"){
+          supprimerRDV(info.event);
         }
 
       }
@@ -276,6 +257,31 @@ document.addEventListener('DOMContentLoaded', async function() {
   }
 
 });
+
+// ===== DELETE =====
+async function supprimerRDV(event){
+
+  try {
+
+    const res = await fetch(window.location.origin + "/reservation/" + event.id,{
+      method:"DELETE",
+      credentials:"include"
+    });
+
+    const result = await res.json();
+
+    if(result.success){
+      event.remove();
+    } else {
+      alert("Erreur suppression");
+    }
+
+  } catch(err){
+    console.error(err);
+    alert("Erreur serveur");
+  }
+
+}
 
 // ===== MODAL =====
 function openModal(){
