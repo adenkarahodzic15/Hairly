@@ -14,21 +14,17 @@
 body{
 margin:0;
 font-family:'Roboto', sans-serif;
-
-/* MOBILE IMAGE */
 background:url('bg-mobile.jpg') center/cover no-repeat;
 min-height:100vh;
 color:#fff;
 }
 
-/* DESKTOP IMAGE */
 @media (min-width:768px){
 body{
 background:url('bg-desktop.jpg') center/cover no-repeat;
 }
 }
 
-/* OVERLAY PRO */
 body::before{
 content:"";
 position:fixed;
@@ -36,8 +32,6 @@ inset:0;
 background:rgba(0,0,0,0.35);
 z-index:-1;
 }
-
-/* NAVBAR */
 
 .navbar{
 position:fixed;
@@ -52,15 +46,16 @@ box-sizing:border-box;
 z-index:1000;
 }
 
-/* LOGO */
+/* LOGO CLIQUABLE */
 .logo{
 font-size:28px;
 font-weight:700;
 color:white;
+text-decoration:none;
+cursor:pointer;
 }
 
-/* MENU CENTRÉ */
-
+/* MENU */
 .menu{
 position:absolute;
 left:50%;
@@ -81,8 +76,7 @@ opacity:0.9;
 opacity:1;
 }
 
-/* ICON USER */
-
+/* USER */
 .user-icon{
 cursor:pointer;
 display:flex;
@@ -99,8 +93,7 @@ height:22px;
 fill:white;
 }
 
-/* LOGIN BOX */
-
+/* LOGIN */
 #loginBox{
 position:absolute;
 top:70px;
@@ -120,7 +113,6 @@ padding:10px;
 margin-bottom:10px;
 border:1px solid #ccc;
 border-radius:6px;
-box-sizing:border-box;
 }
 
 #loginBox button{
@@ -140,7 +132,6 @@ text-align:center;
 }
 
 /* HERO */
-
 .hero{
 height:100vh;
 display:flex;
@@ -149,23 +140,19 @@ justify-content:center;
 align-items:center;
 text-align:center;
 padding:20px;
-box-sizing:border-box;
 }
 
 .hero h1{
 font-size:44px;
 margin-bottom:10px;
-font-weight:700;
 }
 
 .hero p{
 font-size:18px;
 margin-bottom:35px;
-opacity:0.9;
 }
 
 /* SEARCH */
-
 .search-container{
 width:100%;
 max-width:520px;
@@ -175,8 +162,6 @@ align-items:center;
 position:relative;
 }
 
-/* INPUT STYLE PREMIUM */
-
 input{
 width:100%;
 padding:18px;
@@ -184,11 +169,8 @@ font-size:16px;
 border-radius:30px;
 border:none;
 margin-bottom:12px;
-box-sizing:border-box;
 background:rgba(255,255,255,0.9);
 }
-
-/* BUTTON STYLE PREMIUM */
 
 button{
 width:100%;
@@ -199,14 +181,7 @@ border:none;
 background:black;
 color:white;
 cursor:pointer;
-transition:0.2s;
 }
-
-button:hover{
-opacity:0.85;
-}
-
-/* suggestions */
 
 .suggestions{
 width:100%;
@@ -231,7 +206,6 @@ background:#f0f0f0;
 }
 
 /* MOBILE */
-
 @media (max-width:768px){
 
 .menu{
@@ -259,7 +233,7 @@ font-size:16px;
 
 <div class="navbar">
 
-<div class="logo">Hairly</div>
+<a href="index.html" class="logo">Hairly</a>
 
 <div class="menu">
 <a href="salons.html">Nos salons</a>
@@ -296,6 +270,7 @@ font-size:16px;
 
 <div id="suggestions" class="suggestions">
 <div class="suggestion" onclick="goSalon()">L'homme du jazz</div>
+<div class="suggestion" onclick="goMetz()">Metz</div>
 </div>
 
 <button onclick="searchSalon()">Rechercher</button>
@@ -318,7 +293,11 @@ input.addEventListener("input",function(){
 
 const value=input.value.toLowerCase();
 
-if(value.includes("homme") || value.includes("jazz")){
+if(
+value.includes("homme") ||
+value.includes("jazz") ||
+value.includes("metz")
+){
 suggestions.style.display="block";
 }else{
 suggestions.style.display="none";
@@ -330,14 +309,22 @@ function goSalon(){
 window.location.href="homme-du-jazz.html";
 }
 
+function goMetz(){
+window.location.href="salons.html";
+}
+
 function searchSalon(){
 
 const value=input.value.toLowerCase();
 
 if(value.includes("homme") || value.includes("jazz")){
 window.location.href="homme-du-jazz.html";
-}else{
-alert("Aucun salon trouvé");
+}
+else if(value.includes("metz")){
+window.location.href="salons.html";
+}
+else{
+alert("Aucun résultat");
 }
 
 }
