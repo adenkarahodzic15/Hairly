@@ -300,7 +300,7 @@ container.innerHTML="";
 
 for(let h=9;h<19;h++){
 ["00","30"].forEach(m=>{
-let time=h+":"+m;
+let time = h.toString().padStart(2,"0")+":"+m;
 
 let div=document.createElement("div");
 div.className="time-slot";
