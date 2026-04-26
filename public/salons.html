@@ -49,12 +49,16 @@ padding:20px 25px;
 z-index:1000;
 }
 
+/* LOGO CLIQUABLE */
 .logo{
 font-size:28px;
 font-weight:700;
 color:white;
+text-decoration:none;
+cursor:pointer;
 }
 
+/* MENU CENTRÉ */
 .menu{
 position:absolute;
 left:50%;
@@ -172,6 +176,34 @@ border-radius:20px;
 font-size:14px;
 }
 
+/* 📱 MOBILE FIX */
+@media(max-width:768px){
+
+.navbar{
+flex-direction:column;
+gap:10px;
+align-items:center;
+}
+
+/* menu bien centré */
+.menu{
+position:static;
+transform:none;
+justify-content:center;
+flex-wrap:wrap;
+width:100%;
+}
+
+.logo{
+font-size:22px;
+}
+
+h1{
+font-size:26px;
+}
+
+}
+
 </style>
 
 </head>
@@ -180,7 +212,7 @@ font-size:14px;
 
 <div class="navbar">
 
-<div class="logo">Hairly</div>
+<a href="index.html" class="logo">Hairly</a>
 
 <div class="menu">
 <a href="salons.html">Nos salons</a>
