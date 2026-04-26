@@ -16,12 +16,13 @@ background:#0f0f0f;
 color:white;
 }
 
+/* HEADER */
 .header{
 display:flex;
 justify-content:space-between;
 align-items:center;
 padding:20px 30px;
-gap:10px;
+position:relative;
 }
 
 .header h1{
@@ -30,11 +31,22 @@ font-size:24px;
 }
 
 .header-center{
-display:flex;
-gap:10px;
-align-items:center;
+position:absolute;
+left:50%;
+transform:translateX(-50%);
 }
 
+.ca-btn{
+background:white;
+color:black;
+border:none;
+padding:10px 18px;
+border-radius:20px;
+cursor:pointer;
+font-weight:600;
+}
+
+/* ADD BUTTON */
 .add-btn{
 background:white;
 color:black;
@@ -45,16 +57,7 @@ cursor:pointer;
 font-weight:500;
 }
 
-.ca-panel{
-display:none;
-background:white;
-color:black;
-padding:10px 15px;
-border-radius:10px;
-font-size:14px;
-min-width:160px;
-}
-
+/* CALENDAR */
 #calendar{
 max-width:1100px;
 margin:20px auto;
@@ -62,8 +65,46 @@ background:white;
 padding:10px;
 border-radius:12px;
 color:black;
-position:relative;
-z-index:1;
+}
+
+/* EVENTS */
+.fc-event{
+background:black !important;
+border:none !important;
+color:white !important;
+padding:3px !important;
+border-radius:6px !important;
+}
+
+/* CA PANEL */
+#caPanel{
+display:none;
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,0.7);
+justify-content:center;
+align-items:center;
+z-index:9999;
+}
+
+.ca-box{
+background:white;
+color:black;
+padding:25px;
+border-radius:12px;
+width:300px;
+text-align:center;
+}
+
+.ca-box button{
+margin:5px;
+padding:8px 12px;
+border:none;
+border-radius:8px;
+cursor:pointer;
 }
 
 /* MODAL */
@@ -115,14 +156,25 @@ cursor:pointer;
 max-width:100%;
 margin:10px;
 padding:5px;
-overflow-x:auto;
 }
 
-.fc{min-width:700px;}
+.fc{
+min-width:700px;
+}
 
 .header{
 flex-direction:column;
 align-items:flex-start;
+gap:10px;
+padding:15px;
+}
+
+.header h1{font-size:20px;}
+
+.header-center{
+position:static;
+transform:none;
+margin-top:10px;
 }
 
 .add-btn{
@@ -140,26 +192,32 @@ z-index:2000;
 <body>
 
 <div class="header">
-
 <h1>Agenda</h1>
 
 <div class="header-center">
-
-<button class="add-btn" onclick="toggleCA()">CA</button>
-
-<div id="caPanel" class="ca-panel">
-<div><b>Jour :</b> <span id="caDay">0€</span></div>
-<div><b>Semaine :</b> <span id="caWeek">0€</span></div>
-<div><b>Mois :</b> <span id="caMonth">0€</span></div>
-</div>
-
+<button class="ca-btn" onclick="openCA()">CA</button>
 </div>
 
 <button class="add-btn" onclick="openModal()">+ Ajouter</button>
-
 </div>
 
 <div id="calendar"></div>
+
+<!-- CA PANEL -->
+<div id="caPanel" onclick="closeCA()">
+<div class="ca-box" onclick="event.stopPropagation()">
+
+<h3>Chiffre d'affaires</h3>
+
+<p id="caDay"></p>
+<p id="caWeek"></p>
+<p id="caMonth"></p>
+<p id="caYear"></p>
+
+<button onclick="closeCA()">Fermer</button>
+
+</div>
+</div>
 
 <!-- MODAL -->
 <div id="modal">
@@ -182,76 +240,29 @@ z-index:2000;
 <script>
 
 let calendar;
-let allReservations = [];
 
-// PRIX SERVICES
+// PRIX
 function getPrice(service){
 
 const prices = {
-"Coupe classique homme": 21,
-"Dégradé américain": 24,
-"Coupe enfant": 16,
-"Coupe + barbe tondeuse": 29,
-"Coupe + barbe coupe choux": 24,
-"Forfait relaxant avec barbe": 60,
-"Forfait relaxant sans barbe": 42,
-"RDV manuel": 0
+"Coupe classique homme":21,
+"Dégradé américain":24,
+"Coupe enfant":16,
+"Coupe + barbe tondeuse":29,
+"Coupe + barbe coupe choux":24,
+"Forfait relaxant avec barbe":60,
+"Forfait relaxant sans barbe":42,
+"RDV manuel":0
 };
 
 return prices[service] || 0;
 }
 
-// CA PANEL
-function toggleCA(){
-const p = document.getElementById("caPanel");
-p.style.display = p.style.display === "block" ? "none" : "block";
-updateCA();
-}
-
-function updateCA(){
-
-const now = new Date();
-
-let day = 0;
-let week = 0;
-let month = 0;
-
-const startWeek = new Date(now);
-startWeek.setDate(now.getDate() - now.getDay());
-
-const endWeek = new Date(startWeek);
-endWeek.setDate(startWeek.getDate() + 7);
-
-allReservations.forEach(r => {
-
-const date = new Date(r.date);
-const price = getPrice(r.service);
-
-if(date.toDateString() === now.toDateString()) day += price;
-if(date >= startWeek && date <= endWeek) week += price;
-if(date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear()) month += price;
-
-});
-
-document.getElementById("caDay").innerText = day + "€";
-document.getElementById("caWeek").innerText = week + "€";
-document.getElementById("caMonth").innerText = month + "€";
-}
-
 // LOAD
 document.addEventListener('DOMContentLoaded', async function() {
 
-const res = await fetch(window.location.origin + "/dashboard-reservations", {
-credentials:"include"
-});
-
-if(res.status === 401){
-window.location.href="/login.html";
-return;
-}
-
+const res = await fetch(window.location.origin + "/dashboard-reservations",{credentials:"include"});
 const reservations = await res.json();
-allReservations = reservations;
 
 const events = reservations.map(r => {
 
@@ -259,20 +270,23 @@ let heureISO = r.heure?.length === 5 ? r.heure + ":00" : r.heure;
 
 return {
 id:r.id,
-title:`${r.nom} ${r.prenom} - ${r.telephone || ""}`,
+title:`${r.nom} ${r.prenom} - ${r.service} - ${getPrice(r.service)}€`,
 start:`${r.date}T${heureISO}`,
 extendedProps:{
-service:r.service
+service:r.service,
+price:getPrice(r.service),
+date:r.date
 }
 };
 
 });
 
-calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
+calendar = new FullCalendar.Calendar(document.getElementById('calendar'),{
 
 initialView:'timeGridWeek',
 locale:'fr',
 firstDay:1,
+displayEventTime:false,
 
 headerToolbar:{
 left:'prev,next today',
@@ -289,12 +303,12 @@ eventClick:function(info){
 
 const choix = prompt("1 = Valider\n2 = Supprimer");
 
-if(choix === "1"){
-info.event.setProp("title","✅ " + info.event.title);
+if(choix==="1"){
 info.event.setProp("backgroundColor","green");
+info.event.setProp("title","✅ " + info.event.title);
 }
 
-if(choix === "2"){
+if(choix==="2"){
 supprimerRDV(info.event);
 }
 
@@ -303,19 +317,54 @@ supprimerRDV(info.event);
 });
 
 calendar.render();
-updateCA();
 
 });
 
-// DELETE
+// SUPPRIMER
 async function supprimerRDV(event){
 
-await fetch(window.location.origin + "/reservation/" + event.id,{
+await fetch("/reservation/"+event.id,{
 method:"DELETE",
 credentials:"include"
 });
 
 event.remove();
+}
+
+// CA
+function openCA(){
+
+const events = calendar.getEvents();
+
+let day=0,week=0,month=0,year=0;
+
+const now = new Date();
+
+events.forEach(e=>{
+
+const d = new Date(e.start);
+const price = e.extendedProps.price || 0;
+
+if(d.toDateString()===now.toDateString()) day+=price;
+
+if((now - d) < 7*24*60*60*1000) week+=price;
+
+if(d.getMonth()===now.getMonth()) month+=price;
+
+if(d.getFullYear()===now.getFullYear()) year+=price;
+
+});
+
+document.getElementById("caDay").innerText="Jour : "+day+"€";
+document.getElementById("caWeek").innerText="Semaine : "+week+"€";
+document.getElementById("caMonth").innerText="Mois : "+month+"€";
+document.getElementById("caYear").innerText="Année : "+year+"€";
+
+document.getElementById("caPanel").style.display="flex";
+}
+
+function closeCA(){
+document.getElementById("caPanel").style.display="none";
 }
 
 // MODAL
@@ -331,23 +380,14 @@ const telephone=document.getElementById("telephone").value;
 const date=document.getElementById("date").value;
 const heure=document.getElementById("heure").value;
 
-const res=await fetch(window.location.origin+"/reservation",{
+await fetch("/reservation",{
 method:"POST",
 headers:{"Content-Type":"application/json"},
 credentials:"include",
-body:JSON.stringify({
-nom,prenom,telephone,date,heure,
-service:"RDV manuel",
-coiffeur:"Salon"
-})
+body:JSON.stringify({nom,prenom,telephone,date,heure,service:"RDV manuel"})
 });
 
-const result=await res.json();
-
-if(result.success){
 location.reload();
-}
-
 }
 
 </script>
