@@ -16,6 +16,7 @@ background:#0f0f0f;
 color:white;
 }
 
+/* HEADER */
 .header{
 display:flex;
 justify-content:space-between;
@@ -38,6 +39,7 @@ cursor:pointer;
 font-weight:500;
 }
 
+/* CALENDAR */
 #calendar{
 max-width:1100px;
 margin:20px auto;
@@ -45,11 +47,18 @@ background:white;
 padding:10px;
 border-radius:12px;
 color:black;
-position:relative;
-z-index:1;
 }
 
-/* MODAL FIX */
+/* EVENTS STYLE (IMPORTANT) */
+.fc-event{
+background:black !important;
+border:none !important;
+color:white !important;
+padding:3px !important;
+border-radius:6px !important;
+}
+
+/* MODAL */
 #modal{
 display:none;
 position:fixed;
@@ -69,8 +78,6 @@ color:black;
 padding:25px;
 border-radius:10px;
 width:320px;
-position:relative;
-z-index:10000;
 }
 
 .modal-content input{
@@ -90,14 +97,8 @@ border-radius:6px;
 cursor:pointer;
 }
 
-.save{
-background:black;
-color:white;
-}
-
-.close{
-background:#ddd;
-}
+.save{background:black;color:white;}
+.close{background:#ddd;}
 
 /* MOBILE */
 @media (max-width:768px){
@@ -106,7 +107,6 @@ background:#ddd;
 max-width:100%;
 margin:10px;
 padding:5px;
-overflow-x:auto;
 }
 
 .fc{
@@ -120,9 +120,7 @@ gap:10px;
 padding:15px;
 }
 
-.header h1{
-font-size:20px;
-}
+.header h1{font-size:20px;}
 
 .add-btn{
 position:fixed;
@@ -131,23 +129,10 @@ right:20px;
 z-index:2000;
 }
 
-.fc-toolbar-title{
-font-size:14px !important;
-}
-
-.fc-button{
-font-size:12px !important;
-padding:5px 8px !important;
-}
-
-.fc-timegrid-axis{
-font-size:10px !important;
-}
-
-.fc-event{
-font-size:10px !important;
-padding:2px !important;
-}
+.fc-toolbar-title{font-size:14px !important;}
+.fc-button{font-size:12px !important;padding:5px 8px !important;}
+.fc-timegrid-axis{font-size:10px !important;}
+.fc-event{font-size:10px !important;}
 
 }
 
@@ -185,6 +170,23 @@ padding:2px !important;
 
 let calendar;
 
+// 💰 PRIX
+function getPrice(service){
+
+  const prices = {
+    "Coupe classique homme":21,
+    "Dégradé américain":24,
+    "Coupe enfant":16,
+    "Coupe + barbe tondeuse":29,
+    "Coupe + barbe coupe choux":24,
+    "Forfait relaxant avec barbe":60,
+    "Forfait relaxant sans barbe":42,
+    "RDV manuel":0
+  };
+
+  return prices[service] || 0;
+}
+
 // ===== LOAD =====
 document.addEventListener('DOMContentLoaded', async function() {
 
@@ -203,11 +205,12 @@ document.addEventListener('DOMContentLoaded', async function() {
     const reservations = await res.json();
 
     const events = reservations.map(r => {
+
       let heureISO = r.heure?.length === 5 ? r.heure + ":00" : r.heure;
 
       return {
         id: r.id,
-        title: `${r.nom} ${r.prenom} - ${r.telephone || ""}`,
+        title: `${r.nom} ${r.prenom} - ${r.service} - ${getPrice(r.service)}€`,
         start: `${r.date}T${heureISO}`
       };
     });
@@ -217,6 +220,8 @@ document.addEventListener('DOMContentLoaded', async function() {
       initialView: 'timeGridWeek',
       locale: 'fr',
       firstDay: 1,
+
+      displayEventTime: false,
 
       headerToolbar: {
         left: 'prev,next today',
@@ -229,7 +234,6 @@ document.addEventListener('DOMContentLoaded', async function() {
 
       events: events,
 
-      // ✅ CORRECTION ICI
       eventClick: function(info){
 
         const choix = prompt(
@@ -237,8 +241,10 @@ document.addEventListener('DOMContentLoaded', async function() {
         );
 
         if(choix === "1"){
+
           info.event.setProp("title", "✅ " + info.event.title);
           info.event.setProp("backgroundColor", "green");
+
         }
 
         if(choix === "2"){
@@ -329,12 +335,11 @@ if(result.success){
 
 calendar.addEvent({
 id: result.id,
-title: nom + " " + prenom + " - " + telephone,
+title: nom + " " + prenom + " - RDV manuel",
 start: date + "T" + heure
 });
 
 alert("✅ Rendez-vous ajouté");
-
 closeModal();
 
 }else{
