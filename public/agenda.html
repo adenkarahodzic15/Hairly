@@ -16,17 +16,23 @@ background:#0f0f0f;
 color:white;
 }
 
-/* HEADER */
 .header{
 display:flex;
 justify-content:space-between;
 align-items:center;
 padding:20px 30px;
+gap:10px;
 }
 
 .header h1{
 margin:0;
 font-size:24px;
+}
+
+.header-center{
+display:flex;
+gap:10px;
+align-items:center;
 }
 
 .add-btn{
@@ -39,7 +45,16 @@ cursor:pointer;
 font-weight:500;
 }
 
-/* CALENDAR */
+.ca-panel{
+display:none;
+background:white;
+color:black;
+padding:10px 15px;
+border-radius:10px;
+font-size:14px;
+min-width:160px;
+}
+
 #calendar{
 max-width:1100px;
 margin:20px auto;
@@ -47,15 +62,8 @@ background:white;
 padding:10px;
 border-radius:12px;
 color:black;
-}
-
-/* EVENTS STYLE (IMPORTANT) */
-.fc-event{
-background:black !important;
-border:none !important;
-color:white !important;
-padding:3px !important;
-border-radius:6px !important;
+position:relative;
+z-index:1;
 }
 
 /* MODAL */
@@ -107,20 +115,15 @@ cursor:pointer;
 max-width:100%;
 margin:10px;
 padding:5px;
+overflow-x:auto;
 }
 
-.fc{
-min-width:700px;
-}
+.fc{min-width:700px;}
 
 .header{
 flex-direction:column;
 align-items:flex-start;
-gap:10px;
-padding:15px;
 }
-
-.header h1{font-size:20px;}
 
 .add-btn{
 position:fixed;
@@ -128,11 +131,6 @@ bottom:20px;
 right:20px;
 z-index:2000;
 }
-
-.fc-toolbar-title{font-size:14px !important;}
-.fc-button{font-size:12px !important;padding:5px 8px !important;}
-.fc-timegrid-axis{font-size:10px !important;}
-.fc-event{font-size:10px !important;}
 
 }
 
@@ -142,8 +140,23 @@ z-index:2000;
 <body>
 
 <div class="header">
+
 <h1>Agenda</h1>
+
+<div class="header-center">
+
+<button class="add-btn" onclick="toggleCA()">CA</button>
+
+<div id="caPanel" class="ca-panel">
+<div><b>Jour :</b> <span id="caDay">0€</span></div>
+<div><b>Semaine :</b> <span id="caWeek">0€</span></div>
+<div><b>Mois :</b> <span id="caMonth">0€</span></div>
+</div>
+
+</div>
+
 <button class="add-btn" onclick="openModal()">+ Ajouter</button>
+
 </div>
 
 <div id="calendar"></div>
@@ -169,186 +182,170 @@ z-index:2000;
 <script>
 
 let calendar;
+let allReservations = [];
 
-// 💰 PRIX
+// PRIX SERVICES
 function getPrice(service){
 
-  const prices = {
-    "Coupe classique homme":21,
-    "Dégradé américain":24,
-    "Coupe enfant":16,
-    "Coupe + barbe tondeuse":29,
-    "Coupe + barbe coupe choux":24,
-    "Forfait relaxant avec barbe":60,
-    "Forfait relaxant sans barbe":42,
-    "RDV manuel":0
-  };
+const prices = {
+"Coupe classique homme": 21,
+"Dégradé américain": 24,
+"Coupe enfant": 16,
+"Coupe + barbe tondeuse": 29,
+"Coupe + barbe coupe choux": 24,
+"Forfait relaxant avec barbe": 60,
+"Forfait relaxant sans barbe": 42,
+"RDV manuel": 0
+};
 
-  return prices[service] || 0;
+return prices[service] || 0;
 }
 
-// ===== LOAD =====
-document.addEventListener('DOMContentLoaded', async function() {
+// CA PANEL
+function toggleCA(){
+const p = document.getElementById("caPanel");
+p.style.display = p.style.display === "block" ? "none" : "block";
+updateCA();
+}
 
-  try {
+function updateCA(){
 
-    const res = await fetch(window.location.origin + "/dashboard-reservations", {
-      credentials:"include"
-    });
+const now = new Date();
 
-    if (res.status === 401) {
-      alert("Veuillez vous connecter");
-      window.location.href = "/login.html";
-      return;
-    }
+let day = 0;
+let week = 0;
+let month = 0;
 
-    const reservations = await res.json();
+const startWeek = new Date(now);
+startWeek.setDate(now.getDate() - now.getDay());
 
-    const events = reservations.map(r => {
+const endWeek = new Date(startWeek);
+endWeek.setDate(startWeek.getDate() + 7);
 
-      let heureISO = r.heure?.length === 5 ? r.heure + ":00" : r.heure;
+allReservations.forEach(r => {
 
-      return {
-        id: r.id,
-        title: `${r.nom} ${r.prenom} - ${r.service} - ${getPrice(r.service)}€`,
-        start: `${r.date}T${heureISO}`
-      };
-    });
+const date = new Date(r.date);
+const price = getPrice(r.service);
 
-    calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
-
-      initialView: 'timeGridWeek',
-      locale: 'fr',
-      firstDay: 1,
-
-      displayEventTime: false,
-
-      headerToolbar: {
-        left: 'prev,next today',
-        center: 'title',
-        right: 'timeGridWeek,dayGridMonth'
-      },
-
-      slotMinTime: "08:00:00",
-      slotMaxTime: "20:00:00",
-
-      events: events,
-
-      eventClick: function(info){
-
-        const choix = prompt(
-          "1 = Valider le RDV\n2 = Supprimer le RDV"
-        );
-
-        if(choix === "1"){
-
-          info.event.setProp("title", "✅ " + info.event.title);
-          info.event.setProp("backgroundColor", "green");
-
-        }
-
-        if(choix === "2"){
-          supprimerRDV(info.event);
-        }
-
-      }
-
-    });
-
-    calendar.render();
-
-  } catch (err){
-    console.error(err);
-    alert("Erreur chargement agenda");
-  }
+if(date.toDateString() === now.toDateString()) day += price;
+if(date >= startWeek && date <= endWeek) week += price;
+if(date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear()) month += price;
 
 });
 
-// ===== DELETE =====
-async function supprimerRDV(event){
-
-  try {
-
-    const res = await fetch(window.location.origin + "/reservation/" + event.id,{
-      method:"DELETE",
-      credentials:"include"
-    });
-
-    const result = await res.json();
-
-    if(result.success){
-      event.remove();
-    } else {
-      alert("Erreur suppression");
-    }
-
-  } catch(err){
-    console.error(err);
-    alert("Erreur serveur");
-  }
-
+document.getElementById("caDay").innerText = day + "€";
+document.getElementById("caWeek").innerText = week + "€";
+document.getElementById("caMonth").innerText = month + "€";
 }
 
-// ===== MODAL =====
-function openModal(){
-document.getElementById("modal").style.display="flex";
-}
+// LOAD
+document.addEventListener('DOMContentLoaded', async function() {
 
-function closeModal(){
-document.getElementById("modal").style.display="none";
-}
+const res = await fetch(window.location.origin + "/dashboard-reservations", {
+credentials:"include"
+});
 
-// ===== CREATE RDV =====
-async function createRDV(){
-
-const nom = document.getElementById("nom").value;
-const prenom = document.getElementById("prenom").value;
-const telephone = document.getElementById("telephone").value;
-const date = document.getElementById("date").value;
-const heure = document.getElementById("heure").value;
-
-if(!nom || !date || !heure){
-alert("Champs obligatoires");
+if(res.status === 401){
+window.location.href="/login.html";
 return;
 }
 
-try {
+const reservations = await res.json();
+allReservations = reservations;
 
-const res = await fetch(window.location.origin + "/reservation",{
+const events = reservations.map(r => {
+
+let heureISO = r.heure?.length === 5 ? r.heure + ":00" : r.heure;
+
+return {
+id:r.id,
+title:`${r.nom} ${r.prenom} - ${r.telephone || ""}`,
+start:`${r.date}T${heureISO}`,
+extendedProps:{
+service:r.service
+}
+};
+
+});
+
+calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
+
+initialView:'timeGridWeek',
+locale:'fr',
+firstDay:1,
+
+headerToolbar:{
+left:'prev,next today',
+center:'title',
+right:'timeGridWeek,dayGridMonth'
+},
+
+slotMinTime:"08:00:00",
+slotMaxTime:"20:00:00",
+
+events:events,
+
+eventClick:function(info){
+
+const choix = prompt("1 = Valider\n2 = Supprimer");
+
+if(choix === "1"){
+info.event.setProp("title","✅ " + info.event.title);
+info.event.setProp("backgroundColor","green");
+}
+
+if(choix === "2"){
+supprimerRDV(info.event);
+}
+
+}
+
+});
+
+calendar.render();
+updateCA();
+
+});
+
+// DELETE
+async function supprimerRDV(event){
+
+await fetch(window.location.origin + "/reservation/" + event.id,{
+method:"DELETE",
+credentials:"include"
+});
+
+event.remove();
+}
+
+// MODAL
+function openModal(){document.getElementById("modal").style.display="flex";}
+function closeModal(){document.getElementById("modal").style.display="none";}
+
+// CREATE
+async function createRDV(){
+
+const nom=document.getElementById("nom").value;
+const prenom=document.getElementById("prenom").value;
+const telephone=document.getElementById("telephone").value;
+const date=document.getElementById("date").value;
+const heure=document.getElementById("heure").value;
+
+const res=await fetch(window.location.origin+"/reservation",{
 method:"POST",
 headers:{"Content-Type":"application/json"},
 credentials:"include",
 body:JSON.stringify({
-nom,
-prenom,
-telephone,
-date,
-heure,
+nom,prenom,telephone,date,heure,
 service:"RDV manuel",
 coiffeur:"Salon"
 })
 });
 
-const result = await res.json();
+const result=await res.json();
 
 if(result.success){
-
-calendar.addEvent({
-id: result.id,
-title: nom + " " + prenom + " - RDV manuel",
-start: date + "T" + heure
-});
-
-alert("✅ Rendez-vous ajouté");
-closeModal();
-
-}else{
-alert(result.message || "Erreur");
-}
-
-} catch(err){
-console.error(err);
-alert("Erreur serveur");
+location.reload();
 }
 
 }
