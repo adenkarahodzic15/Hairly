@@ -187,7 +187,6 @@ font-size:16px;
 
 <div class="address">📍 12 Rue des Augustins, 57000 Metz</div>
 
-<!-- IMAGES -->
 <div class="gallery">
 <img src="salon1.png">
 <img src="salon2.png">
@@ -196,7 +195,6 @@ font-size:16px;
 <img src="salon5.png">
 </div>
 
-<!-- PRESTATIONS -->
 <div class="section-title">Nos prestations</div>
 
 <div class="service">
@@ -234,7 +232,6 @@ font-size:16px;
 <button onclick="selectService('Forfait relaxant sans barbe',90)">Choisir</button>
 </div>
 
-<!-- HORAIRES -->
 <div class="section-title">Horaires d'ouverture</div>
 
 <div class="hours">
@@ -249,13 +246,14 @@ Dimanche : Fermé
 
 </div>
 
-<!-- MODAL -->
 <div id="reservationModal">
 <div class="modal-content">
 
 <h3>Réservation</h3>
 
 <form id="reservationForm">
+
+<input type="hidden" id="serviceInput">
 
 <input type="text" name="nom" placeholder="Nom" required>
 <input type="text" name="prenom" placeholder="Prénom" required>
@@ -285,19 +283,17 @@ Dimanche : Fermé
 let selectedService="";
 let selectedTime="";
 
-/* OPEN MODAL */
 function selectService(service,duree){
 selectedService=service;
+document.getElementById("serviceInput").value = service;
 document.getElementById("reservationModal").style.display="flex";
 generateTimeSlots();
 }
 
-/* CLOSE */
 function closeReservation(){
 document.getElementById("reservationModal").style.display="none";
 }
 
-/* TIME SLOTS */
 function generateTimeSlots(){
 const container=document.getElementById("timeSlots");
 container.innerHTML="";
@@ -321,7 +317,6 @@ container.appendChild(div);
 }
 }
 
-/* SUBMIT */
 document.getElementById("reservationForm").addEventListener("submit",async(e)=>{
 e.preventDefault();
 
@@ -333,7 +328,7 @@ return;
 const form=e.target;
 
 const data={
-service:selectedService,
+service: document.getElementById("serviceInput").value,
 nom:form.nom.value,
 prenom:form.prenom.value,
 email:form.email.value,
